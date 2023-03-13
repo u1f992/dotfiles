@@ -20,9 +20,9 @@ colorscheme despacio
 " https://github.com/microsoft/terminal/issues/832
 set termguicolors
 
-" Use PowerShell for :term
 if has("win32") || has("win64")
-    set shell=pwsh
+    " Use PowerShell for :term
+    " set shell=pwsh
 endif
 
 " vim-plug
@@ -33,7 +33,10 @@ call plug#begin()
 " https://github.com/mattn/vim-lsp-settings
 Plug 'prabirshrestha/vim-lsp'
 Plug 'mattn/vim-lsp-settings'
+
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
+
+Plug 'prettier/vim-prettier', { 'do': 'npm install --frozen-lockfile --production' }
 
 call plug#end()
