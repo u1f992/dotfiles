@@ -39,7 +39,7 @@ Plug 'hrsh7th/vim-vsnip-integ'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
 
-Plug 'prettier/vim-prettier', { 'do': 'npm install --frozen-lockfile --production' }
+Plug 'adnan007d/vim-prettier', { 'do': 'npm install --frozen-lockfile --production' }
 
 call plug#end()
 
