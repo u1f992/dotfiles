@@ -8,6 +8,7 @@ set expandtab
 set tabstop=4
 set shiftwidth=4
 set backspace=2
+set ambiwidth=double
 
 " Use clipboard for yank
 set clipboard=unnamed,autoselect
