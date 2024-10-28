@@ -1,14 +1,18 @@
 # dotfiles
 
-## Restore
+```
+$ git clone https://github.com/u1f992/dotfiles.git
+```
 
-```sh
-git clone https://github.com/mukai1011/dotfiles.git
+### Windows
 
-# Windows
-.\link.bat
+```
+> .\link.bat
+```
 
-# *nix
-./link.sh
+### Linux
+
+```
+$ ./link.sh
 ```
 
