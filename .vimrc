@@ -13,6 +13,11 @@ set ambiwidth=double
 " Use clipboard for yank
 set clipboard=unnamed,autoselect
 
+" Automatically reload files modified in the background.
+" Particularly useful when formatters or linters apply changes.
+set autoread
+autocmd FocusGained,BufEnter * checktime
+
 " Despacio
 " https://github.com/AlessandroYorba/Despacio
 colorscheme despacio
@@ -39,9 +44,6 @@ Plug 'hrsh7th/vim-vsnip-integ'
 
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
-
-Plug 'adnan007d/vim-prettier', { 'do': 'npm install --frozen-lockfile --production' }
-Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install' }
 
 call plug#end()
 
