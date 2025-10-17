@@ -11,7 +11,7 @@ set backspace=2
 set ambiwidth=double
 
 " Use clipboard for yank
-set clipboard=unnamed,autoselect
+set clipboard=unnamedplus,unnamed,autoselect
 
 " Automatically reload files modified in the background.
 " Particularly useful when formatters or linters apply changes.
