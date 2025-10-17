@@ -1,5 +1,7 @@
 #!/bin/sh
-ln -sf ~/dotfiles/.minttyrc ~/.minttyrc
+set -eu
+
+# ln -sf ~/dotfiles/.minttyrc ~/.minttyrc
 ln -sf ~/dotfiles/.vimrc ~/.vimrc
 ln -sf ~/dotfiles/.gvimrc ~/.gvimrc
 
