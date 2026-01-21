@@ -1,1 +1,4 @@
 u1f992-temp/
+
+# Claude Code local settings
+.claude/settings.local.json
