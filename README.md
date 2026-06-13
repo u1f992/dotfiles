@@ -1,9 +1,15 @@
 # dotfiles
 
 ```
-$ git clone https://github.com/u1f992/dotfiles.git ~/dotfiles
+$ git clone --recursive https://github.com/u1f992/dotfiles.git ~/dotfiles
 $ cd ~/dotfiles
 $ ./link.sh
+```
+
+If you have already cloned without `--recursive`, fetch the submodules with:
+
+```
+$ git -C ~/dotfiles submodule update --init --recursive
 ```
 
 ### Windows
