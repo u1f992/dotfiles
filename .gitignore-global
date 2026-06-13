@@ -1,7 +1,7 @@
 .tmp/
 
 # Claude Code local settings
-.claude/rules/
-.claude/skills/
-.claude/CLAUDE.md
+.claude/rules/*.local.md
+.claude/skills/*-local/
+.claude/CLAUDE.local.md
 .claude/settings.local.json
