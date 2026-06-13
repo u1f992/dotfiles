@@ -2,5 +2,6 @@
 
 # Claude Code local settings
 .claude/rules/
+.claude/skills/
 .claude/CLAUDE.md
 .claude/settings.local.json
