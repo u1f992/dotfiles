@@ -3,5 +3,6 @@
 # Claude Code local settings
 .claude/rules/*.local.md
 .claude/skills/*-local/
+.claude/hooks/*.local.*
 .claude/CLAUDE.local.md
 .claude/settings.local.json
