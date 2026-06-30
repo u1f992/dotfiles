@@ -41,12 +41,12 @@ The third-party skills below are vendored. This is because the specification als
 
 | Directory | Upstream |
 | --- | --- |
-| .claude/skills/humanizer-local | [blader/humanizer](https://github.com/blader/humanizer)@[9600f2b](https://github.com/blader/humanizer/tree/9600f2b7241cb4eed6ad803abee5ea01d67fe8e4) (MIT license) |
+| .claude/skills/humanizer-local | [blader/humanizer](https://github.com/blader/humanizer)@[1b48564](https://github.com/blader/humanizer/tree/1b48564898e999219882660237fde01bf4843a0f) (MIT license) |
 
 To confirm that the `name` is the only change:
 
 ```shellsession
 $ git clone https://github.com/blader/humanizer .tmp/humanizer
-$ git -C .tmp/humanizer checkout 9600f2b7241cb4eed6ad803abee5ea01d67fe8e4
+$ git -C .tmp/humanizer checkout 1b48564898e999219882660237fde01bf4843a0f
 $ diff --recursive --exclude=.git .tmp/humanizer .claude/skills/humanizer-local
 ```
