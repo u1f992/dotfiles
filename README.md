@@ -42,6 +42,7 @@ The third-party skills below are vendored. This is because the specification als
 | Directory | Upstream |
 | --- | --- |
 | .claude/skills/humanizer-local | [blader/humanizer](https://github.com/blader/humanizer)@[1b48564](https://github.com/blader/humanizer/tree/1b48564898e999219882660237fde01bf4843a0f) (MIT license) |
+| .claude/skills/japanese-tech-writing-local | [k16shikano/fd287c3133457c4fd8f5601d34aa817d](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d)@[5ed08e4](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d/5ed08e4475365fd233aa0d3ab71c19b87e1a5732) ([Unlicense](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d?permalink_comment_id=6210840#gistcomment-6210840)) |
 
 To confirm that the `name` is the only change:
 
@@ -49,4 +50,10 @@ To confirm that the `name` is the only change:
 $ git clone https://github.com/blader/humanizer .tmp/humanizer
 $ git -C .tmp/humanizer checkout 1b48564898e999219882660237fde01bf4843a0f
 $ diff --recursive --exclude=.git .tmp/humanizer .claude/skills/humanizer-local
+```
+
+```shellsession
+$ git clone https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d.git .tmp/japanese-tech-writing
+$ git -C .tmp/japanese-tech-writing checkout 5ed08e4475365fd233aa0d3ab71c19b87e1a5732
+$ diff --recursive --exclude=.git .tmp/japanese-tech-writing .claude/skills/japanese-tech-writing-local
 ```
