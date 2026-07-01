@@ -6,19 +6,6 @@ const isStringArray = (x: unknown): x is string[] =>
   Array.isArray(x) && x.every((v) => typeof v === "string");
 
 type FindBanned = (text: string) => string[];
-
-type Dispatch = (x: unknown, findBanned: FindBanned) => boolean;
-const dispatch =
-  <T>(
-    validate: (x: unknown) => x is T,
-    handle: (x: T, findBanned: FindBanned) => void,
-  ): Dispatch =>
-  (x, findBanned) => {
-    if (!validate(x)) return false;
-    handle(x, findBanned);
-    return true;
-  };
-
 const loadBanned = (): FindBanned => {
   const bannedPath = new URL("./reject-words.local.json", import.meta.url);
   const banned = JSON.parse(fs.readFileSync(bannedPath, "utf8"));
@@ -30,6 +17,20 @@ const loadBanned = (): FindBanned => {
     return banned.filter((word) => lower.includes(word.toLowerCase()));
   };
 };
+
+type Dispatch = (x: unknown, findBanned: FindBanned) => boolean;
+const dispatch =
+  <T>(
+    validate: (x: unknown) => x is T,
+    select: (x: T) => string,
+    handle: (found: readonly string[]) => void,
+  ): Dispatch =>
+  (x, findBanned) => {
+    if (!validate(x)) return false;
+    const found = findBanned(select(x));
+    if (found.length > 0) handle(found);
+    return true;
+  };
 
 // stdoutはパイプ（非TTY）なのでvalidateStreamを切って常に着色する。
 const red = (text: string): string =>
@@ -51,40 +52,30 @@ const isStopHookInput = (x: unknown): x is StopHookInput =>
   "last_assistant_message" in x &&
   typeof x.last_assistant_message === "string";
 
-const handleStop = (input: StopHookInput, findBanned: FindBanned): void => {
-  // 自分のブロックで再発火した場合はブロックしない（無限ループ防止）
-  if (input.stop_hook_active) {
-    return;
-  }
-  const found = findBanned(input.last_assistant_message);
-  if (found.length > 0) {
-    process.stdout.write(
-      JSON.stringify({
-        decision: "block",
-        reason: red(
-          `The response contains banned words: ${found.join(", ")}. Rewrite it without these words.`,
-        ),
-      }),
-    );
-  }
+const handleStop = (found: readonly string[]): void => {
+  process.stdout.write(
+    JSON.stringify({
+      decision: "block",
+      reason: red(
+        `The response contains banned words: ${found.join(", ")}. Rewrite it without these words.`,
+      ),
+    }),
+  );
 };
 
 // PreToolUseで書き込みを拒否するときの共通出力。
-const denyWrittenText = (text: string, findBanned: FindBanned): void => {
-  const found = findBanned(text);
-  if (found.length > 0) {
-    process.stdout.write(
-      JSON.stringify({
-        hookSpecificOutput: {
-          hookEventName: "PreToolUse",
-          permissionDecision: "deny",
-          permissionDecisionReason: red(
-            `The content to write contains banned words: ${found.join(", ")}. Rewrite it without these words.`,
-          ),
-        },
-      }),
-    );
-  }
+const denyWrittenText = (found: readonly string[]): void => {
+  process.stdout.write(
+    JSON.stringify({
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        permissionDecision: "deny",
+        permissionDecisionReason: red(
+          `The content to write contains banned words: ${found.join(", ")}. Rewrite it without these words.`,
+        ),
+      },
+    }),
+  );
 };
 
 /**
@@ -107,12 +98,6 @@ const isWriteToolUseInput = (x: unknown): x is WriteToolUseInput => {
     typeof tool_input.content === "string"
   );
 };
-const handleWrite = (
-  input: WriteToolUseInput,
-  findBanned: FindBanned,
-): void => {
-  denyWrittenText(input.tool_input.content, findBanned);
-};
 
 type EditToolUseInput = {
   tool_name: "Edit";
@@ -130,17 +115,19 @@ const isEditToolUseInput = (x: unknown): x is EditToolUseInput => {
     typeof tool_input.new_string === "string"
   );
 };
-const handleEdit = (input: EditToolUseInput, findBanned: FindBanned): void => {
-  denyWrittenText(input.tool_input.new_string, findBanned);
-};
 
 const inputJson = fs.readFileSync(0, "utf8");
 const input = JSON.parse(inputJson);
 const findBanned = loadBanned();
 const dispatchers = [
-  dispatch(isStopHookInput, handleStop),
-  dispatch(isWriteToolUseInput, handleWrite),
-  dispatch(isEditToolUseInput, handleEdit),
+  dispatch(
+    isStopHookInput,
+    // 自分のブロックでの再発火時は走査対象なし＝ブロックしない（無限ループ防止）
+    (x) => (x.stop_hook_active ? "" : x.last_assistant_message),
+    handleStop,
+  ),
+  dispatch(isWriteToolUseInput, (x) => x.tool_input.content, denyWrittenText),
+  dispatch(isEditToolUseInput, (x) => x.tool_input.new_string, denyWrittenText),
 ];
 if (!dispatchers.some((run) => run(input, findBanned))) {
   throw new Error("unexpected hook input");
