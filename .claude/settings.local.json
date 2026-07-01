@@ -11,6 +11,18 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/reject-words.local.ts",
+            "args": []
+          }
+        ]
+      }
     ]
   },
   "permissions": {
@@ -21,7 +33,8 @@
       "WebFetch(domain:gitlab.com)",
       "WebFetch(domain:gitlab.gnome.org)",
       "WebFetch(domain:git.kernel.org)",
-      "WebFetch(domain:chromium.googlesource.com)"
+      "WebFetch(domain:chromium.googlesource.com)",
+      "Bash(gh pr create:*)"
     ]
   },
   "attribution": {
