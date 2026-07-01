@@ -14,7 +14,7 @@ $ ./link.sh
 
 ## .gitignore-global
 
-Ignore the `u1f992-temp` directory in all repositories.
+Ignore the `.tmp/` directory and the local Claude Code settings in all repositories.
 
 ```shellsession
 $ git config --global core.excludesfile "$(pwd)/.gitignore-global"
