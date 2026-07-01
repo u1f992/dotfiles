@@ -9,13 +9,13 @@ type FindBanned = (text: string) => string[];
 
 type Dispatch = (x: unknown, findBanned: FindBanned) => boolean;
 const dispatch =
-  <T>(entry: {
-    validate: (x: unknown) => x is T;
-    handle: (x: T, findBanned: FindBanned) => void;
-  }): Dispatch =>
+  <T>(
+    validate: (x: unknown) => x is T,
+    handle: (x: T, findBanned: FindBanned) => void,
+  ): Dispatch =>
   (x, findBanned) => {
-    if (!entry.validate(x)) return false;
-    entry.handle(x, findBanned);
+    if (!validate(x)) return false;
+    handle(x, findBanned);
     return true;
   };
 
@@ -137,10 +137,10 @@ const handleEdit = (input: EditToolUseInput, findBanned: FindBanned): void => {
 const inputJson = fs.readFileSync(0, "utf8");
 const input = JSON.parse(inputJson);
 const findBanned = loadBanned();
-const dispatchers: Dispatch[] = [
-  dispatch({ validate: isStopHookInput, handle: handleStop }),
-  dispatch({ validate: isWriteToolUseInput, handle: handleWrite }),
-  dispatch({ validate: isEditToolUseInput, handle: handleEdit }),
+const dispatchers = [
+  dispatch(isStopHookInput, handleStop),
+  dispatch(isWriteToolUseInput, handleWrite),
+  dispatch(isEditToolUseInput, handleEdit),
 ];
 if (!dispatchers.some((run) => run(input, findBanned))) {
   throw new Error("unexpected hook input");

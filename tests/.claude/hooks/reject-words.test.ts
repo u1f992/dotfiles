@@ -119,24 +119,16 @@ test("Writeで登録語が無ければdenyしない", () => {
   assert.equal(res.stdout, "");
 });
 
-test("Write/Edit以外のツールは素通しする（何も出力しない）", () => {
+// マッチャは Write|Edit に限定されており、対象外ツールはそもそもフックに届かない。
+// 万一届いた場合は設定不具合の兆候なので、素通しせず unexpected として顕在化させる。
+test("Write/Edit以外のツールが届いた場合はバリデーションエラーになる", () => {
   const res = run({
     tool_name: "Read",
     tool_input: { file_path: "/x.md" },
   });
-  assert.equal(res.status, 0);
+  assert.equal(res.status, 1);
   assert.equal(res.stdout, "");
-});
-
-test("対象外ツールの入力に登録語が含まれても素通しする", () => {
-  const [word] = banned;
-  assert.ok(word);
-  const res = run({
-    tool_name: "Bash",
-    tool_input: { command: `echo ${word}` },
-  });
-  assert.equal(res.status, 0);
-  assert.equal(res.stdout, "");
+  assert.match(res.stderr, /unexpected hook input/);
 });
 
 test("Writeでcontentを欠く入力はバリデーションエラーになる", () => {
