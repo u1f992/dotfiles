@@ -1,3 +1,3 @@
-# プロジェクトローカルな一時ディレクトリ
+# Project-local temporary directory
 
-一時ファイルの作成やダウンロードおよびクローンの保存先として、`/tmp/`の代わりに`.tmp/`を用いることが推奨される。なお`.tmp/`はグローバルな`core.excludesfile`によって追跡から除外されている。
+When creating temporary files or storing downloads and clones, prefer `.tmp/` over `/tmp/`. Note that `.tmp/` is excluded from tracking by the global `core.excludesfile`.

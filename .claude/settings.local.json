@@ -17,7 +17,11 @@
     "defaultMode": "auto",
     "deny": [
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:gitlab.com)",
+      "WebFetch(domain:gitlab.gnome.org)",
+      "WebFetch(domain:git.kernel.org)",
+      "WebFetch(domain:chromium.googlesource.com)"
     ]
   },
   "attribution": {
@@ -26,5 +30,6 @@
   },
   "env": {
     "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1"
-  }
+  },
+  "language": "japanese"
 }
