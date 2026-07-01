@@ -6,9 +6,9 @@ const isStringArray = (x: unknown): x is string[] =>
   Array.isArray(x) && x.every((v) => typeof v === "string");
 
 type FindBanned = (text: string) => string[];
-const loadBanned = (): FindBanned => {
-  const bannedPath = new URL("./reject-words.local.json", import.meta.url);
-  const banned = JSON.parse(fs.readFileSync(bannedPath, "utf8"));
+const loadBanned = (bannedPath: URL): FindBanned => {
+  const bannedJson = fs.readFileSync(bannedPath, "utf8");
+  const banned = JSON.parse(bannedJson);
   if (!isStringArray(banned)) {
     throw new Error(`${bannedPath.pathname} must be a JSON array of strings`);
   }
@@ -18,19 +18,24 @@ const loadBanned = (): FindBanned => {
   };
 };
 
-type Dispatch = (x: unknown, findBanned: FindBanned) => boolean;
-const dispatch =
+type Route = (x: unknown, findBanned: FindBanned) => boolean;
+const route =
   <T>(
     validate: (x: unknown) => x is T,
     select: (x: T) => string,
-    handle: (found: readonly string[]) => void,
-  ): Dispatch =>
+    handle: (found: readonly string[], x: T) => void,
+  ): Route =>
   (x, findBanned) => {
     if (!validate(x)) return false;
     const found = findBanned(select(x));
-    if (found.length > 0) handle(found);
+    if (found.length > 0) handle(found, x);
     return true;
   };
+
+const createDispatch =
+  (findBanned: FindBanned, routes: Route[]) =>
+  (x: unknown): boolean =>
+    routes.some((r) => r(x, findBanned));
 
 // stdoutはパイプ（非TTY）なのでvalidateStreamを切って常に着色する。
 const red = (text: string): string =>
@@ -52,7 +57,9 @@ const isStopHookInput = (x: unknown): x is StopHookInput =>
   "last_assistant_message" in x &&
   typeof x.last_assistant_message === "string";
 
-const handleStop = (found: readonly string[]): void => {
+const handleStop = (found: readonly string[], input: StopHookInput): void => {
+  // 自分のブロックで再発火した場合はブロックしない（無限ループ防止）
+  if (input.stop_hook_active) return;
   process.stdout.write(
     JSON.stringify({
       decision: "block",
@@ -63,7 +70,6 @@ const handleStop = (found: readonly string[]): void => {
   );
 };
 
-// PreToolUseで書き込みを拒否するときの共通出力。
 const denyWrittenText = (found: readonly string[]): void => {
   process.stdout.write(
     JSON.stringify({
@@ -118,19 +124,13 @@ const isEditToolUseInput = (x: unknown): x is EditToolUseInput => {
 
 const inputJson = fs.readFileSync(0, "utf8");
 const input = JSON.parse(inputJson);
-const findBanned = loadBanned();
-const dispatchers = [
-  dispatch(
-    isStopHookInput,
-    // 自分のブロックでの再発火時は走査対象なし＝ブロックしない（無限ループ防止）
-    (x) => (x.stop_hook_active ? "" : x.last_assistant_message),
-    handleStop,
-  ),
-  dispatch(isWriteToolUseInput, (x) => x.tool_input.content, denyWrittenText),
-  dispatch(isEditToolUseInput, (x) => x.tool_input.new_string, denyWrittenText),
-];
-if (!dispatchers.some((run) => run(input, findBanned))) {
+const bannedPath = new URL("./reject-words.local.json", import.meta.url);
+const findBanned = loadBanned(bannedPath);
+const dispatch = createDispatch(findBanned, [
+  route(isStopHookInput, (x) => x.last_assistant_message, handleStop),
+  route(isWriteToolUseInput, (x) => x.tool_input.content, denyWrittenText),
+  route(isEditToolUseInput, (x) => x.tool_input.new_string, denyWrittenText),
+]);
+if (!dispatch(input)) {
   throw new Error("unexpected hook input");
 }
-
-process.exit(0);
