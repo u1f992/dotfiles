@@ -42,8 +42,8 @@ The third-party skills below are vendored. This is because the specification als
 | Directory | Upstream |
 | --- | --- |
 | .claude/skills/humanizer-local | [blader/humanizer](https://github.com/blader/humanizer)@[1b48564](https://github.com/blader/humanizer/tree/1b48564898e999219882660237fde01bf4843a0f) (MIT license) |
-| .claude/skills/japanese-tech-writing-local | [k16shikano/fd287c3133457c4fd8f5601d34aa817d](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d)@[5ed08e4](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d/5ed08e4475365fd233aa0d3ab71c19b87e1a5732) ([Unlicense](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d?permalink_comment_id=6210840#gistcomment-6210840)) |
-| .claude/skills/cognitive-rhythm-writing-local | [k16shikano/eb2929f13ed19c97188393d297be8432](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432)@[c0cc970](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432/c0cc9703807a323445a1fce2fe07866550a3265f) ([Unlicense](https://gist.github.com/k16shikano/67625f2a7d96e3bbdfae8d571a936063)) |
+| .claude/skills/japanese-tech-writing-local | [k16shikano/fd287c3133457c4fd8f5601d34aa817d](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d)@[209db7d](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d/209db7d6d19bc4727139844c0e8d786542e9ff68) ([Unlicense](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d?permalink_comment_id=6210840#gistcomment-6210840)) |
+| .claude/skills/cognitive-rhythm-writing-local | [k16shikano/eb2929f13ed19c97188393d297be8432](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432)@[a3b1e26](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432/a3b1e26beced71d582e13314fb6f5b179b023c76) ([Unlicense](https://gist.github.com/k16shikano/67625f2a7d96e3bbdfae8d571a936063)) |
 
 To confirm that the `name` is the only change:
 
@@ -55,12 +55,12 @@ $ diff --recursive --exclude=.git .tmp/humanizer .claude/skills/humanizer-local
 
 ```shellsession
 $ git clone https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d.git .tmp/japanese-tech-writing
-$ git -C .tmp/japanese-tech-writing checkout 5ed08e4475365fd233aa0d3ab71c19b87e1a5732
+$ git -C .tmp/japanese-tech-writing checkout 209db7d6d19bc4727139844c0e8d786542e9ff68
 $ diff --recursive --exclude=.git .tmp/japanese-tech-writing .claude/skills/japanese-tech-writing-local
 ```
 
 ```shellsession
 $ git clone https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432.git .tmp/cognitive-rhythm-writing
-$ git -C .tmp/cognitive-rhythm-writing checkout c0cc9703807a323445a1fce2fe07866550a3265f
+$ git -C .tmp/cognitive-rhythm-writing checkout a3b1e26beced71d582e13314fb6f5b179b023c76
 $ diff --recursive --exclude=.git .tmp/cognitive-rhythm-writing .claude/skills/cognitive-rhythm-writing-local
 ```
