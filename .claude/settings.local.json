@@ -44,5 +44,6 @@
   "env": {
     "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1"
   },
-  "language": "japanese"
+  "language": "japanese",
+  "autoMemoryEnabled": false
 }
