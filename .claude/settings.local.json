@@ -26,7 +26,7 @@
     ]
   },
   "permissions": {
-    "defaultMode": "auto",
+    "defaultMode": "bypassPermissions",
     "deny": [
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
