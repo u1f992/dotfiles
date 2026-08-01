@@ -3,34 +3,28 @@ import * as claude from "./claude.ts";
 const isStringArray = (x: unknown): x is string[] =>
   Array.isArray(x) && x.every((v) => typeof v === "string");
 
-type FindBanned = (text: string) => string[];
+type Route<T> = {
+  validate: (x: unknown) => x is T;
+  select: (x: T) => string;
+  createDeny: (found: readonly string[]) => claude.DecisionFor<T>;
+};
 
-type Decide = () => claude.Decision;
-const noDecision: Decide = () => ({});
-
-type Route = (x: unknown, findBanned: FindBanned) => Decide | undefined;
-const route =
-  <T>(
-    validate: (x: unknown) => x is T,
-    select: (x: T) => string,
-    createDeny: (found: readonly string[]) => claude.DecisionFor<T>,
-  ): Route =>
-  (x, findBanned) => {
-    if (!validate(x)) return undefined;
-    const found = findBanned(select(x));
-    return found.length > 0 ? () => createDeny(found) : noDecision;
-  };
-
-const dispatch = (
-  x: unknown,
-  findBanned: FindBanned,
-  routes: readonly Route[],
-): claude.Decision => {
-  const decide = routes.reduce<Decide | undefined>(
-    (decide, r) => decide ?? r(x, findBanned),
+const dispatch = <Ts extends readonly Readonly<unknown>[]>(
+  input: unknown,
+  words: readonly string[],
+  routes: { readonly [K in keyof Ts]: Readonly<Route<Ts[K]>> },
+): claude.Decision | undefined => {
+  const findBanned = (text: string) =>
+    words.filter((word) => text.toLowerCase().includes(word.toLowerCase()));
+  return routes.reduce<(() => claude.Decision) | undefined>(
+    (decide, { validate, select, createDeny }) => {
+      if (decide !== undefined) return decide;
+      if (!validate(input)) return undefined;
+      const found = findBanned(select(input));
+      return found.length > 0 ? () => createDeny(found) : () => ({});
+    },
     undefined,
-  );
-  return (decide ?? noDecision)();
+  )?.();
 };
 
 const createDenyStopDecision = (
@@ -60,34 +54,25 @@ export const rejectWords = (
   input: unknown,
   banned: { url: URL; content: unknown },
   styleDeny: (text: string) => string,
-): claude.Decision => {
-  if (!isStringArray(banned.content)) {
-    return {
-      systemMessage: `${banned.url.pathname} must be a JSON array of strings`,
-    };
-  }
-  const words = banned.content;
-
-  return dispatch(
-    input,
-    (text) =>
-      words.filter((word) => text.toLowerCase().includes(word.toLowerCase())),
-    [
-      route(
-        claude.isStopHookInput,
-        (x) => x.last_assistant_message,
-        (found) => createDenyStopDecision(found, styleDeny),
-      ),
-      route(
-        claude.isWriteToolUseInput,
-        (x) => x.tool_input.content,
-        (found) => createDenyPreToolUseDecision(found, styleDeny),
-      ),
-      route(
-        claude.isEditToolUseInput,
-        (x) => x.tool_input.new_string,
-        (found) => createDenyPreToolUseDecision(found, styleDeny),
-      ),
-    ],
-  );
-};
+): claude.Decision =>
+  !isStringArray(banned.content)
+    ? {
+        systemMessage: `${banned.url.pathname} must be a JSON array of strings`,
+      }
+    : (dispatch(input, banned.content, [
+        {
+          validate: claude.isStopHookInput,
+          select: (x) => x.last_assistant_message,
+          createDeny: (found) => createDenyStopDecision(found, styleDeny),
+        },
+        {
+          validate: claude.isWriteToolUseInput,
+          select: (x) => x.tool_input.content,
+          createDeny: (found) => createDenyPreToolUseDecision(found, styleDeny),
+        },
+        {
+          validate: claude.isEditToolUseInput,
+          select: (x) => x.tool_input.new_string,
+          createDeny: (found) => createDenyPreToolUseDecision(found, styleDeny),
+        },
+      ]) ?? {});
