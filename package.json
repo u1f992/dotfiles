@@ -1,7 +1,13 @@
 {
   "type": "module",
+  "scripts": {
+    "format": "prettier --write prettier.config.ts \".claude/**/*.ts\" \"tests/.claude/**/*.ts\"",
+    "test": "node --test \"tests/.claude/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
   "devDependencies": {
     "@types/node": "^22.20.0",
-    "@typescript/native-preview": "^7.0.0-dev.20260629.1"
+    "prettier": "^3.9.6",
+    "typescript": "^7.0.2"
   }
 }

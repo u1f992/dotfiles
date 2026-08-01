@@ -2,13 +2,13 @@
 import fs from "node:fs";
 import util from "node:util";
 
-import { rejectWords } from "./core.local/reject-words.ts";
+import { requireTasks } from "./core.local/require-tasks.ts";
 
 const input = JSON.parse(fs.readFileSync(0, "utf8"));
-const url = new URL("./reject-words.local.json", import.meta.url);
+const url = new URL("./require-tasks.local.json", import.meta.url);
 const content = JSON.parse(fs.readFileSync(url, "utf8"));
 const output = JSON.stringify(
-  rejectWords(input, { url, content }, (text) =>
+  requireTasks(input, { url, content }, (text) =>
     util.styleText(
       "red",
       text,
