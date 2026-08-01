@@ -24,7 +24,10 @@ const asPreToolUseDecision = (decision: Decision): PreToolUseDecision => {
 
 // 実ファイルではなく固定のリストを使う。実ファイルの中身が変わってもテストが
 // 揺れないようにし、大文字小文字や空白入りの語も含めて照合を確かめる。
-const banned = ["Foo", "bar baz"];
+const banned = [
+  { word: "Foo", reason: "Fooを禁じる理由" },
+  { word: "bar baz", reason: "bar bazを禁じる理由" },
+];
 const bannedUrl = new URL("file:///hooks/reject-words.local.json");
 
 // 着色はエントリポイントの持ち物なので、コアには印を渡して適用の有無だけを見る。
@@ -54,7 +57,26 @@ test("登録語を含む応答をブロックし、該当語を理由に載せ�
 
 test("複数該当時はすべて理由に列挙する", () => {
   const { reason } = asStopDecision(run(stop("Foo と bar baz")));
-  for (const word of banned) assert.ok(reason?.includes(word));
+  for (const { word } of banned) assert.ok(reason?.includes(word));
+});
+
+// 該当語だけでは何が悪いのか伝わらないので、登録側が書いたreasonを添える。
+test("該当語にreasonを添えて載せる", () => {
+  const { reason } = asStopDecision(run(stop("Foo")));
+  assert.ok(reason?.includes("Foo: Fooを禁じる理由"));
+});
+
+// 語の言い換えで済むという誤読を招かないよう、禁止の対象が語ではなくフレーミングで
+// あることを拒否のたびに載せる。Stop と PreToolUse のどちらでも欠かせない。
+test("拒否の理由に言い換えでは直らない旨を載せる", () => {
+  const { reason } = asStopDecision(run(stop("Foo")));
+  assert.ok(reason?.includes("Substituting synonyms"));
+  const { hookSpecificOutput } = asPreToolUseDecision(run(write("Foo")));
+  assert.ok(
+    hookSpecificOutput.permissionDecisionReason?.includes(
+      "Substituting synonyms",
+    ),
+  );
 });
 
 test("大文字小文字を無視して照合する", () => {
@@ -90,9 +112,9 @@ test("Editのnew_stringに登録語を含むとdenyする", () => {
 
 test("PreToolUse複数該当時はすべて理由に列挙する", () => {
   const { hookSpecificOutput } = asPreToolUseDecision(
-    run(write(banned.join(" "))),
+    run(write(banned.map(({ word }) => word).join(" "))),
   );
-  for (const word of banned)
+  for (const { word } of banned)
     assert.ok(hookSpecificOutput.permissionDecisionReason?.includes(word));
 });
 
@@ -159,7 +181,10 @@ test("systemMessageはstyleDenyを通さない", () => {
 const assertInvalidFormat = (decision: Decision) => {
   assert.equal(decision.hookSpecificOutput, undefined);
   assert.equal(asStopDecision(decision).decision, undefined);
-  assert.match(decision.systemMessage ?? "", /must be a JSON array of strings/);
+  assert.match(
+    decision.systemMessage ?? "",
+    /must be a JSON array of \{ word: string, reason: string \}/,
+  );
   assert.ok(decision.systemMessage?.includes("/hooks/reject-words.local.json"));
 };
 
@@ -167,8 +192,16 @@ test("登録語の一覧が配列でなければ形式の誤りを知らせる",
   assertInvalidFormat(run(stop("hello"), { Foo: true }));
 });
 
-test("登録語の一覧に文字列以外が混ざれば形式の誤りを知らせる", () => {
-  assertInvalidFormat(run(stop("hello"), ["Foo", 1]));
+test("string[]の旧形式は形式の誤りを知らせる", () => {
+  assertInvalidFormat(run(stop("hello"), ["Foo"]));
+});
+
+test("wordキーを欠く要素があれば形式の誤りを知らせる", () => {
+  assertInvalidFormat(run(stop("hello"), [{ reason: "" }]));
+});
+
+test("reasonキーを欠く要素があれば形式の誤りを知らせる", () => {
+  assertInvalidFormat(run(stop("hello"), [{ word: "Foo" }]));
 });
 
 const hooksDir = fileURLToPath(
@@ -176,13 +209,14 @@ const hooksDir = fileURLToPath(
 );
 const hookPath = `${hooksDir}reject-words.local.ts`;
 
-test("配置済みの登録語一覧は文字列配列になっている", () => {
+test("配置済みの登録語一覧は{ word, reason }の配列になっている", () => {
   const raw = fs.readFileSync(`${hooksDir}reject-words.local.json`, "utf8");
   const parsed: unknown = JSON.parse(raw);
   assert.ok(Array.isArray(parsed));
-  for (const word of parsed) {
-    assert.equal(typeof word, "string");
-    assert.ok(word.length > 0);
+  for (const entry of parsed) {
+    assert.equal(typeof entry.word, "string");
+    assert.ok(entry.word.length > 0);
+    assert.equal(typeof entry.reason, "string");
   }
 });
 
@@ -195,11 +229,12 @@ test("フックに実行権限がある", () => {
 // エントリポイントが担うのは stdin とファイルの読み込み、stdout への書き出しだけ。
 // 判定そのものは上のAPIテストが見るので、ここでは結線だけを確かめる。
 test("エントリポイントはstdinを読んでstdoutに決定を書く", () => {
-  const realBanned: string[] = JSON.parse(
+  const realBanned: { word: string; reason: string }[] = JSON.parse(
     fs.readFileSync(`${hooksDir}reject-words.local.json`, "utf8"),
   );
-  const [word] = realBanned;
-  assert.ok(word);
+  const [entry] = realBanned;
+  assert.ok(entry);
+  const { word } = entry;
   const res = spawnSync(process.execPath, [hookPath], {
     input: JSON.stringify(stop(`前 ${word} 後`)),
     encoding: "utf8",
