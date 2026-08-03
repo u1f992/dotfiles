@@ -7,3 +7,4 @@ node_modules/
 !.claude/**
 !.codex/
 !.codex/**
+!AGENTS.override.md

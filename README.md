@@ -74,7 +74,7 @@ $ diff --recursive --exclude=.git .tmp/cognitive-rhythm-writing .agents/skills/c
 
 The Claude Code configuration is mirrored into Codex-native repository surfaces:
 
-- `AGENTS.md` contains durable repository instructions.
+- `AGENTS.override.md` contains user-local instructions and loads `./AGENTS.md` as the project's base instructions when that file exists.
 - `.agents/skills/` contains the local skills.
 - `.codex/config.toml` and `.codex/hooks.json` configure Codex and its hooks.
 - `.codex/rules/default.rules` blocks `gh pr create`.
@@ -82,7 +82,7 @@ The Claude Code configuration is mirrored into Codex-native repository surfaces:
 Deploy the Codex configuration and shared skills in the same way:
 
 ```shellsession
-$ cp -RL ~/dotfiles/.agents ~/dotfiles/.codex ~/dotfiles/AGENTS.md proj-dir/
+$ cp -RL ~/dotfiles/.agents ~/dotfiles/.codex ~/dotfiles/AGENTS.override.md proj-dir/
 ```
 
 Shared hook data and host-independent policy code have one canonical copy under `.agents/hooks/`:

@@ -1,5 +1,7 @@
-# Repository instructions
+# User-local instructions
 
+- Before starting work, if `./AGENTS.md` exists, read it and apply its contents as the project's base instructions.
+- This file defines additional user-local instructions. If an instruction here conflicts with `./AGENTS.md`, follow this file.
 - Respond in Japanese unless the user requests another language.
 - When creating temporary files, downloads, or clones, prefer the repository-local `.tmp/` directory over `/tmp/`.
 - Use `rg` or `rg --files` for repository searches. Do not pipe stdout or stderr directly through `head`, `tail`, or `grep`; if filtering a command's logs is necessary, preserve the complete output with `tee` at the same time.

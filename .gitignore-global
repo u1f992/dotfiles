@@ -13,3 +13,4 @@
 .agents/**/*.local.*
 .agents/**/*.local/
 .agents/**/*-local/
+AGENTS.override.md
