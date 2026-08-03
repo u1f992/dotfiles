@@ -1,1 +1,9 @@
 node_modules/
+
+# This repository is the canonical source for globally ignored agent settings.
+!.agents/
+!.agents/**
+!.claude/
+!.claude/**
+!.codex/
+!.codex/**

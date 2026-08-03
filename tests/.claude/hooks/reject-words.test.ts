@@ -8,8 +8,9 @@ import type {
   Decision,
   PreToolUseDecision,
   StopDecision,
-} from "../../../.claude/hooks/core.local/claude.ts";
-import { rejectWords } from "../../../.claude/hooks/core.local/reject-words.ts";
+} from "../../../.claude/hooks/claude.local.ts";
+import { adapter } from "../../../.claude/hooks/claude.local.ts";
+import { rejectWords } from "../../../.claude/hooks/policy.local/reject-words.ts";
 
 // `Decision`はユニオンなので、片方の枝にしかないプロパティは直接読めない。
 // 期待したイベントの決定が返っていることをassertしたうえで絞り込む。
@@ -34,7 +35,7 @@ const bannedUrl = new URL("file:///hooks/reject-words.local.json");
 const styleDeny = (text: string) => `<deny>${text}</deny>`;
 
 const run = (input: unknown, words: unknown = banned) =>
-  rejectWords(input, { url: bannedUrl, content: words }, styleDeny);
+  rejectWords(adapter, input, { url: bannedUrl, content: words }, styleDeny);
 
 const stop = (last_assistant_message: string, stop_hook_active = false) => ({
   stop_hook_active,

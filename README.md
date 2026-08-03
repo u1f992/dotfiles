@@ -14,7 +14,7 @@ $ ./link.sh
 
 ## .gitignore-global
 
-Ignore the `.tmp/` directory and the local Claude Code settings in all repositories.
+Ignore the `.tmp/` directory and personal Claude Code/Codex settings in all repositories. Codex's `.codex/` directory is excluded as a unit; under `.agents/`, only files and directories carrying `.local` or `-local` suffixes are excluded.
 
 ```shellsession
 $ git config --global core.excludesfile "$(pwd)/.gitignore-global"
@@ -31,26 +31,28 @@ $ git config --global --unset core.excludesfile
 
 `.claude/` holds personal Claude Code configuration. Each item carries a suffix so that `core.excludesfile` (see above) ignores it in other projects. This assumes those projects do not use the suffix themselves. The suffix is `.local`, except skill directories, which use `-local` to conform to the [Agent Skills specification](https://github.com/agentskills/agentskills/blob/5d4c1fda3f786fff826c7f56b6cb3341e7f3a911/docs/specification.mdx#name-field) ([latest](https://agentskills.io/specification#name-field)).
 
-Deploy them into a project by copying the directory in:
+Deploy them into a project with symlinks dereferenced. The destination receives regular files rather than links back into this repository:
 
 ```shellsession
-$ cp --recursive ~/dotfiles/.claude proj-dir/
+$ cp -RL ~/dotfiles/.claude proj-dir/
 ```
+
+The canonical skill directory is `.agents/skills/`; `.claude/skills` is a relative symlink to it. `cp -RL` dereferences the link when deploying Claude configuration, so the destination receives a regular `skills/` directory.
 
 The third-party skills below are vendored. This is because the specification also requires a skill's `name` to match the parent directory name, so an unmodified submodule and the `-local` suffix cannot coexist.
 
 | Directory | Upstream |
 | --- | --- |
-| .claude/skills/humanizer-local | [blader/humanizer](https://github.com/blader/humanizer)@[523374d](https://github.com/blader/humanizer/tree/523374dee72d67c7b2b5f858ea0094ffda49c3ac) (MIT license) |
-| .claude/skills/japanese-tech-writing-local | [k16shikano/fd287c3133457c4fd8f5601d34aa817d](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d)@[c7189cd](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d/c7189cdc9c2520be50418209834145bdf3a46e97) ([Unlicense](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d?permalink_comment_id=6210840#gistcomment-6210840)) |
-| .claude/skills/cognitive-rhythm-writing-local | [k16shikano/eb2929f13ed19c97188393d297be8432](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432)@[a3b1e26](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432/a3b1e26beced71d582e13314fb6f5b179b023c76) ([Unlicense](https://gist.github.com/k16shikano/67625f2a7d96e3bbdfae8d571a936063)) |
+| .agents/skills/humanizer-local | [blader/humanizer](https://github.com/blader/humanizer)@[523374d](https://github.com/blader/humanizer/tree/523374dee72d67c7b2b5f858ea0094ffda49c3ac) (MIT license) |
+| .agents/skills/japanese-tech-writing-local | [k16shikano/fd287c3133457c4fd8f5601d34aa817d](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d)@[c7189cd](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d/c7189cdc9c2520be50418209834145bdf3a46e97) ([Unlicense](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d?permalink_comment_id=6210840#gistcomment-6210840)) |
+| .agents/skills/cognitive-rhythm-writing-local | [k16shikano/eb2929f13ed19c97188393d297be8432](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432)@[a3b1e26](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432/a3b1e26beced71d582e13314fb6f5b179b023c76) ([Unlicense](https://gist.github.com/k16shikano/67625f2a7d96e3bbdfae8d571a936063)) |
 
-To confirm that the `name` is the only change (`japanese-tech-writing-local` also carries a one-line local style patch, [`SKILL.md.diff`](.claude/skills/japanese-tech-writing-local/SKILL.md.diff)):
+To confirm that the `name` is the only change (`japanese-tech-writing-local` also carries a one-line local style patch, [`SKILL.md.diff`](.agents/skills/japanese-tech-writing-local/SKILL.md.diff)):
 
 ```shellsession
 $ git clone https://github.com/blader/humanizer .tmp/humanizer
 $ git -C .tmp/humanizer checkout 523374dee72d67c7b2b5f858ea0094ffda49c3ac
-$ diff --recursive --exclude=.git .tmp/humanizer .claude/skills/humanizer-local
+$ diff --recursive --exclude=.git .tmp/humanizer .agents/skills/humanizer-local
 ```
 
 For `japanese-tech-writing-local`, apply that patch to the upstream checkout first; only the `name` then differs. Re-apply it after any future upstream bump.
@@ -58,12 +60,48 @@ For `japanese-tech-writing-local`, apply that patch to the upstream checkout fir
 ```shellsession
 $ git clone https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d.git .tmp/japanese-tech-writing
 $ git -C .tmp/japanese-tech-writing checkout c7189cdc9c2520be50418209834145bdf3a46e97
-$ patch -d .tmp/japanese-tech-writing -p1 < .claude/skills/japanese-tech-writing-local/SKILL.md.diff
-$ diff --recursive --exclude=.git --exclude=SKILL.md.diff .tmp/japanese-tech-writing .claude/skills/japanese-tech-writing-local
+$ patch -d .tmp/japanese-tech-writing -p1 < .agents/skills/japanese-tech-writing-local/SKILL.md.diff
+$ diff --recursive --exclude=.git --exclude=SKILL.md.diff .tmp/japanese-tech-writing .agents/skills/japanese-tech-writing-local
 ```
 
 ```shellsession
 $ git clone https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432.git .tmp/cognitive-rhythm-writing
 $ git -C .tmp/cognitive-rhythm-writing checkout a3b1e26beced71d582e13314fb6f5b179b023c76
-$ diff --recursive --exclude=.git .tmp/cognitive-rhythm-writing .claude/skills/cognitive-rhythm-writing-local
+$ diff --recursive --exclude=.git .tmp/cognitive-rhythm-writing .agents/skills/cognitive-rhythm-writing-local
 ```
+
+## Codex
+
+The Claude Code configuration is mirrored into Codex-native repository surfaces:
+
+- `AGENTS.md` contains durable repository instructions.
+- `.agents/skills/` contains the local skills.
+- `.codex/config.toml` and `.codex/hooks.json` configure Codex and its hooks.
+- `.codex/rules/default.rules` blocks `gh pr create`.
+
+Deploy the Codex configuration and shared skills in the same way:
+
+```shellsession
+$ cp -RL ~/dotfiles/.agents ~/dotfiles/.codex ~/dotfiles/AGENTS.md proj-dir/
+```
+
+Shared hook data and host-independent policy code have one canonical copy under `.agents/hooks/`:
+
+```text
+.agents/hooks/
+├── policy.local/
+│   ├── cli.ts
+│   ├── hook-adapter.ts
+│   ├── reject-words.ts
+│   └── require-tasks.ts
+├── reject-words.local.json
+└── require-tasks.local.json
+```
+
+Claude and Codex keep only their host-specific hook schema and `HookAdapter` in `.claude/hooks/claude.local.ts` and `.codex/hooks/codex.local.ts`. Their `policy.local/` directories and JSON files are relative symlinks to `.agents/hooks/`. The executable entry points only connect an adapter, a policy, and its JSON file; stdin/stdout handling lives in the shared `cli.ts`.
+
+Each host uses one `stop.local.ts` hook that evaluates the banned-word and pending-task policies together and merges their messages into one Stop decision. Codex's edit adapter extracts only added lines from an `apply_patch` command, so deleted and unchanged context do not trigger the banned-word policy.
+
+`cp -RL` follows all these links, so deployed projects are self-contained and contain regular files rather than links back into this repository.
+
+Codex loads project configuration only after the repository is trusted. Review and trust the migrated command hooks with `/hooks` on first use.

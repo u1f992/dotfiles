@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { adapter } from "./claude.local.ts";
+import { adapter } from "./codex.local.ts";
 import { run } from "./policy.local/cli.ts";
 import { requireTasks } from "./policy.local/require-tasks.ts";
 

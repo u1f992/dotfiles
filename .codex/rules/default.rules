@@ -1,0 +1,7 @@
+prefix_rule(
+    pattern = ["gh", "pr", "create"],
+    decision = "forbidden",
+    justification = "Creating pull requests is intentionally disabled in this project.",
+    match = ["gh pr create", "gh pr create --draft"],
+    not_match = ["gh pr view 1", "gh issue create"],
+)

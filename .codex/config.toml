@@ -1,0 +1,6 @@
+# Equivalent to Claude Code's bypassPermissions mode for this trusted project.
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+
+[features]
+hooks = true

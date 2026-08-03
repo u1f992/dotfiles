@@ -7,7 +7,7 @@ import {
   isWriteToolUseInput,
   type PreToolUseDecision,
   type StopDecision,
-} from "../../../.claude/hooks/core.local/claude.ts";
+} from "../../../.claude/hooks/claude.local.ts";
 
 // Stopの決定にファクトリは無く、プレーンなオブジェクトを型で検査する。
 // `satisfies`はnpm run typecheckで検査され、実行時アサーションは出力の形を示す。

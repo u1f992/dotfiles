@@ -1,3 +1,5 @@
+import type { HookAdapter } from "./policy.local/hook-adapter.ts";
+
 /**
  * イベントを問わず解釈される共通フィールド。イベント固有の決定と同じJSONに載る。
  *
@@ -126,8 +128,57 @@ export type PreToolUseDecision = HookOutput & {
 };
 
 export type Decision = StopDecision | PreToolUseDecision;
-export type DecisionFor<T> = T extends StopHookInput
-  ? StopDecision
-  : T extends WriteToolUseInput | EditToolUseInput
-    ? PreToolUseDecision
-    : never;
+
+const denyEdit = (reason: string): PreToolUseDecision => ({
+  hookSpecificOutput: {
+    hookEventName: "PreToolUse",
+    permissionDecision: "deny",
+    permissionDecisionReason: reason,
+  },
+});
+
+const mergeStopDecisions = (
+  decisions: readonly StopDecision[],
+): StopDecision => {
+  const reasons = decisions.flatMap((decision) =>
+    decision.decision === "block" ? [decision.reason] : [],
+  );
+  const warnings = decisions.flatMap(({ systemMessage }) =>
+    systemMessage === undefined ? [] : [systemMessage],
+  );
+  const systemMessage = warnings.join("\n");
+  if (reasons.length > 0) {
+    const blocked: StopDecision = {
+      decision: "block",
+      reason: reasons.join("\n\n"),
+    };
+    return systemMessage === "" ? blocked : { ...blocked, systemMessage };
+  }
+  return systemMessage === "" ? {} : { systemMessage };
+};
+
+export const adapter: HookAdapter<Decision, StopDecision> = {
+  allow: () => ({}),
+  warn: (systemMessage) => ({ systemMessage }),
+  stop: {
+    matches: isStopHookInput,
+    message: (input) =>
+      isStopHookInput(input) ? input.last_assistant_message : undefined,
+    allow: () => ({}),
+    warn: (systemMessage) => ({ systemMessage }),
+    block: (reason) => ({ decision: "block", reason }),
+    merge: mergeStopDecisions,
+  },
+  edits: [
+    {
+      content: (input) =>
+        isWriteToolUseInput(input) ? input.tool_input.content : undefined,
+      deny: denyEdit,
+    },
+    {
+      content: (input) =>
+        isEditToolUseInput(input) ? input.tool_input.new_string : undefined,
+      deny: denyEdit,
+    },
+  ],
+};

@@ -7,3 +7,9 @@
 .claude/hooks/*.local/
 .claude/CLAUDE.local.md
 .claude/settings.local.json
+
+# Codex local settings
+.codex/
+.agents/**/*.local.*
+.agents/**/*.local/
+.agents/**/*-local/

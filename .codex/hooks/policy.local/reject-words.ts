@@ -1,0 +1,1 @@
+../../../.agents/hooks/policy.local/reject-words.ts

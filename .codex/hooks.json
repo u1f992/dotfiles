@@ -1,0 +1,26 @@
+{
+  "description": "Personal completion and writing-policy hooks migrated from Claude Code.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$(git rev-parse --show-toplevel)/.codex/hooks/stop.local.ts"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$(git rev-parse --show-toplevel)/.codex/hooks/reject-words.local.ts"
+          }
+        ]
+      }
+    ]
+  }
+}

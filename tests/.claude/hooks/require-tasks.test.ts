@@ -4,7 +4,8 @@ import fs from "node:fs";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { requireTasks } from "../../../.claude/hooks/core.local/require-tasks.ts";
+import { adapter } from "../../../.claude/hooks/claude.local.ts";
+import { requireTasks } from "../../../.claude/hooks/policy.local/require-tasks.ts";
 
 const tasksUrl = new URL("file:///hooks/require-tasks.local.json");
 
@@ -14,7 +15,7 @@ const stop = { stop_hook_active: false, last_assistant_message: "done" };
 const styleDeny = (text: string) => `<deny>${text}</deny>`;
 
 const run = (taskList: unknown, input: unknown = stop) =>
-  requireTasks(input, { url: tasksUrl, content: taskList }, styleDeny);
+  requireTasks(adapter, input, { url: tasksUrl, content: taskList }, styleDeny);
 
 const tasks = (...entries: { done: boolean; task: string }[]) => entries;
 

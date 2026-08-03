@@ -6,12 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/reject-words.local.ts",
-            "args": []
-          },
-          {
-            "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/require-tasks.local.ts",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/stop.local.ts",
             "args": []
           }
         ]
