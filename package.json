@@ -1,7 +1,8 @@
 {
   "type": "module",
   "scripts": {
-    "format": "prettier --write prettier.config.ts \".agents/**/*.ts\" \".claude/**/*.ts\" \".codex/**/*.ts\" \"tests/.claude/**/*.ts\" \"tests/.codex/**/*.ts\"",
+    "generate:instructions": "node scripts/generate-agent-instructions.ts",
+    "format": "prettier --write prettier.config.ts \".agents/**/*.ts\" \".claude/**/*.ts\" \".codex/**/*.ts\" \"scripts/**/*.ts\" \"tests/.claude/**/*.ts\" \"tests/.codex/**/*.ts\"",
     "test": "node --test \"tests/.claude/**/*.test.ts\" \"tests/.codex/**/*.test.ts\"",
     "typecheck": "tsc --noEmit"
   },
