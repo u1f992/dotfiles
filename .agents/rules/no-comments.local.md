@@ -1,4 +1,4 @@
-## Prohibition of comments in principle
+## Prohibition of comments
 
 As a rule, writing comments in code is prohibited. The implementation should itself be the most concrete explanation available, and with very few exceptions a comment is a deodorant sprayed over a smell. Split processing into functions along logical units, and give variables and functions sufficiently descriptive names. A comment that refers to a past implementation is garbage that starts rotting the moment it is written. Examples are listed below, but the list is not exhaustive. Consider every comment prohibited.
 
