@@ -37,6 +37,12 @@ Deploy them into a project with symlinks dereferenced. The destination receives 
 $ cp -RL ~/dotfiles/.claude proj-dir/
 ```
 
+> To share project instructions between coding agents, a relative symlink from `CLAUDE.md` to `AGENTS.md` is recommended:
+>
+> ```shellsession
+> $ ln -s AGENTS.md CLAUDE.md
+> ```
+
 The canonical shared rules and skills are under `.agents/rules/` and `.agents/skills/`. `.claude/rules` and `.claude/skills` are relative symlinks to those shared directories. `cp -RL` dereferences the links when deploying Claude configuration, so the destination receives regular `rules/` and `skills/` directories.
 
 The third-party skills below are vendored. This is because the specification also requires a skill's `name` to match the parent directory name, so an unmodified submodule and the `-local` suffix cannot coexist.
