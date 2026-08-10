@@ -27,6 +27,12 @@ To unset:
 $ git config --global --unset core.excludesfile
 ```
 
+OXC reads exclusions from `.gitignore` and `.git/info/exclude`, but [deliberately ignores the user's global Git ignore file](https://github.com/oxc-project/oxc/blob/033ddf6d384ea054e106b9706dbffaed57887947/crates/oxc_config/src/walk.rs#L20-L34). In projects that use OXC, append the global exclusions to `.git/info/exclude`:
+
+```shellsession
+$ git_global_ignore="$(git config --path --get core.excludesFile)" && git_info_exclude="$(git rev-parse --path-format=absolute --git-path info/exclude)" && test -f "$git_global_ignore" && test -f "$git_info_exclude" && { printf '\n'; cat "$git_global_ignore"; } >> "$git_info_exclude"
+```
+
 ## Claude Code
 
 `.claude/` holds personal Claude Code configuration. Each item carries a suffix so that `core.excludesfile` (see above) ignores it in other projects. This assumes those projects do not use the suffix themselves. The suffix is `.local`, except skill directories, which use `-local` to conform to the [Agent Skills specification](https://github.com/agentskills/agentskills/blob/5d4c1fda3f786fff826c7f56b6cb3341e7f3a911/docs/specification.mdx#name-field) ([latest](https://agentskills.io/specification#name-field)).
