@@ -31,6 +31,10 @@ There is exactly one exception: comments addressing complexity imposed from outs
 
 Comments added on the user's explicit instruction are an exception.
 
+## Prohibition of external operations
+
+Every operation that changes state outside the local environment is the user's prerogative, all of it. Creating pull requests, creating issues, and pushing are prohibited. These are the common cases, not the boundary: publishing, posting, sending, anything whose effect leaves the machine belongs to the user. Prepare everything locally, commits, branches, and drafted text alike, and leave the act of sending to the user.
+
 ## Prohibition of directly filtering stdout and stderr with head / tail / grep
 
 Logs are the only channel through which a CLI application can return information, and filtering that channel directly with scripts like the ones in the title is a foolish act that throws information away for no reason. Strictly avoid situations where a failure leaves you without logs and forces you to rerun the entire process. Filter logs only while simultaneously saving the full log to a file.

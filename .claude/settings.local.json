@@ -34,7 +34,9 @@
       "WebFetch(domain:gitlab.gnome.org)",
       "WebFetch(domain:git.kernel.org)",
       "WebFetch(domain:chromium.googlesource.com)",
-      "Bash(gh pr create:*)"
+      "Bash(gh pr create:*)",
+      "Bash(gh issue create:*)",
+      "Bash(git push:*)"
     ]
   },
   "attribution": {

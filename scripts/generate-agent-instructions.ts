@@ -6,6 +6,7 @@ const rulePaths = [
   ".agents/rules/language.local.md",
   ".agents/rules/local-tmp.local.md",
   ".agents/rules/no-comments.local.md",
+  ".agents/rules/no-external-operations.local.md",
   ".agents/rules/no-head-tail-grep.local.md",
   ".agents/rules/no-webfetch.local.md",
   ".agents/rules/reject-words.local.md",

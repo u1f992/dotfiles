@@ -1,7 +1,23 @@
 prefix_rule(
     pattern = ["gh", "pr", "create"],
     decision = "forbidden",
-    justification = "Creating pull requests is intentionally disabled in this project.",
+    justification = "External operations are the user's prerogative; creating pull requests is disabled in this project.",
     match = ["gh pr create", "gh pr create --draft"],
-    not_match = ["gh pr view 1", "gh issue create"],
+    not_match = ["gh pr view 1", "gh pr list"],
+)
+
+prefix_rule(
+    pattern = ["gh", "issue", "create"],
+    decision = "forbidden",
+    justification = "External operations are the user's prerogative; creating issues is disabled in this project.",
+    match = ["gh issue create", "gh issue create --title bug"],
+    not_match = ["gh issue view 1", "gh issue list"],
+)
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "forbidden",
+    justification = "External operations are the user's prerogative; pushing is disabled in this project.",
+    match = ["git push", "git push origin main"],
+    not_match = ["git fetch", "git pull"],
 )
