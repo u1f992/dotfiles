@@ -99,6 +99,12 @@ Deploy the Codex configuration and shared skills in the same way:
 $ cp -RL ~/dotfiles/.agents ~/dotfiles/.codex ~/dotfiles/AGENTS.override.md proj-dir/
 ```
 
+After running `./link.sh`, deploy both the Claude Code and Codex configurations at once by passing the destination directory explicitly. Use `.` for the current directory:
+
+```shellsession
+$ setup-ai-agents .
+```
+
 Shared hook data and host-independent policy code have one canonical copy under `.agents/hooks/`:
 
 ```text

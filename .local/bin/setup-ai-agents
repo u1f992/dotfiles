@@ -1,0 +1,36 @@
+#!/bin/sh
+set -eu
+
+if [ "$#" -ne 1 ]; then
+  printf 'Usage: %s DEST\n' "${0##*/}" >&2
+  exit 2
+fi
+
+destination=$1
+
+if [ ! -d "$destination" ]; then
+  printf '%s: destination is not a directory: %s\n' "${0##*/}" "$destination" >&2
+  exit 1
+fi
+
+script_path=$0
+
+while [ -L "$script_path" ]; do
+  script_directory=$(CDPATH= cd -P -- "$(dirname -- "$script_path")" && pwd)
+  link_target=$(readlink "$script_path")
+
+  case $link_target in
+    /*) script_path=$link_target ;;
+    *) script_path=$script_directory/$link_target ;;
+  esac
+done
+
+script_directory=$(CDPATH= cd -P -- "$(dirname -- "$script_path")" && pwd)
+dotfiles_directory=$(CDPATH= cd -P -- "$script_directory/../.." && pwd)
+
+cp -RL \
+  "$dotfiles_directory/.claude" \
+  "$dotfiles_directory/.agents" \
+  "$dotfiles_directory/.codex" \
+  "$dotfiles_directory/AGENTS.override.md" \
+  "$destination/"
