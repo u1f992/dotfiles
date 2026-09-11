@@ -5,3 +5,7 @@ model_reasoning_effort = "medium"
 
 [features]
 hooks = true
+
+# https://github.com/openai/codex/pull/42842
+[tui]
+whimsy = false
