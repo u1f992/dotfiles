@@ -43,6 +43,16 @@ Deploy them into a project with symlinks dereferenced. The destination receives 
 $ cp -RL ~/dotfiles/.claude proj-dir/
 ```
 
+Since [v2.1.257](https://github.com/anthropics/claude-code/blob/b5932767f3acbd07da25367064827e5cb81f43de/CHANGELOG.md#21257), Claude Code ignores `permissions.defaultMode: "bypassPermissions"` in `.claude/settings.json` and `.claude/settings.local.json` and honors it from user and managed settings, so set it in `~/.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions"
+  }
+}
+```
+
 > To share project instructions between coding agents, a relative symlink from `CLAUDE.md` to `AGENTS.md` is recommended:
 >
 > ```shellsession
