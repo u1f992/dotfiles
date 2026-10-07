@@ -1,127 +1,127 @@
 ---
 name: self-improvement-loop-local
-description: ユーザーが指示した範囲の成果物を、履歴を共有しない2体のサブエージェントによる全体監査、合議による連名の指摘表、マスターによる修正、解消確認、新しいペアによる再監査、旧ペアによる指摘の妥当性監査の反復で改善し、新しいペアが2回連続で連名の指摘なしとするまで続ける手順。ユーザーが徹底した自己改善、自己改善ループ、相互監査による反復改善を指示したときに使用する。
+description: Procedure that improves the deliverables within a user-specified scope by iterating full audits by two subagents that share no history, deliberation into a jointly signed findings table, fixes by the master, resolution checks, re-audits by a new pair, and validity audits of those findings by the previous pair, continuing until new pairs jointly report no findings twice in a row. Use when the user instructs thorough self-improvement, a self-improvement loop, or iterative improvement through mutual audits.
 ---
 
-# 徹底した自己改善ループ
+# Thorough self-improvement loop
 
-ユーザーが指示した範囲において、以下の手順で徹底した自己改善を行う。
+Within the scope the user specified, perform thorough self-improvement by the following procedure.
 
-## 用語
+## Terms
 
-- マスター：この手順を実行し、サブエージェントを起動するエージェント。
-- 監査対象：ユーザーが指示した範囲。マスターが広げたり狭めたりしない。
-- ペア：同時に起動した2体のサブエージェント。2体は互いに、またマスターとも履歴を共有しない状態で起動する。
-- 現ペア：直近の手順1または手順5で起動したペア。
-- 旧ペア：手順5で新しいペアを起動する直前の現ペア。新しいペアの起動と同時にそれまでの現ペアが旧ペアになり、それ以前の旧ペアは役目を終える。
-- 指摘表：指摘ごとに、ID、箇所、問題の内容、根拠、あるべき状態を記した表。
-- 連名：ペアの2体が提出物の全項目に同意していること。
-- 却下済み一覧：手順8で取り下げられた指摘と、その根拠となった連名の監査結果を記した一覧。マスターが保持し、ループ全体を通して引き継ぐ。
-- 意図の補強対象：却下済み一覧の指摘のうち、却下の根拠を監査対象がまだ十分に表現していないもの。手順8で新たに却下された指摘と、手順6で蒸し返された指摘がこれにあたる。手順3で意図を表現したら外す。
-- 蒸し返し：手順6で、いずれかのサブエージェントの個別の指摘表に、却下済みの指摘と同じ内容の指摘が現れること。合議で除かれたか、却下の取り消しを求めたかを問わない。
-- 実装量：監査対象の規模。コードや文書なら空行を除いた行数のように、監査対象に適した尺度を最初に決め、ループ全体を通して同じ尺度で測る。
-- ベースライン：最初の手順3を終えた時点の実装量。範囲の見直しを行ったら、見直し後の実装量で置き換える。
-- 実装範囲の宣言：監査対象が扱う入力と扱わない入力の境界、およびその境界を選んだトレードオフを、監査対象自体に記述したもの。
-- 連続指摘なし数：手順6で、修正を挟まずに連名で指摘なしとし、蒸し返しもなかったペアの数。初期値は0とし、手順3で修正を実装するたびに0へ戻す。
+- Master: the agent that executes this procedure and launches the subagents.
+- Audit target: the scope the user specified. The master neither widens nor narrows it.
+- Pair: two subagents launched at the same time. The two are launched sharing no history with each other or with the master.
+- Current pair: the pair launched in the most recent step 1 or step 5.
+- Previous pair: the current pair immediately before a new pair is launched in step 5. When the new pair is launched, the former current pair becomes the previous pair, and any earlier previous pair is retired.
+- Findings table: a table that records, for each finding, an ID, the location, the problem, the rationale, and the expected state.
+- Joint: both subagents of a pair agree to every item of a submission.
+- Rejected list: a list of the findings withdrawn in step 8, together with the joint audit results that justified the withdrawal. The master keeps it and carries it through the whole loop.
+- Intent reinforcement targets: the findings in the rejected list whose rejection rationale the audit target does not yet express sufficiently. Findings newly rejected in step 8 and findings re-raised in step 6 fall into this category. Remove a finding once its intent has been expressed in step 3.
+- Re-raise: a finding with the same content as a rejected finding appears in the individual findings table of either subagent in step 6, regardless of whether deliberation dropped it or requested revocation of the rejection.
+- Implementation size: the size of the audit target. Decide at the start on a measure suited to the audit target, such as the number of non-blank lines for code or documents, and use the same measure throughout the loop.
+- Baseline: the implementation size at the end of the first step 3. After a scope review, replace it with the implementation size after the review.
+- Scope declaration: a statement, written in the audit target itself, of the boundary between the inputs the audit target handles and those it does not, together with the trade-offs behind that boundary.
+- Consecutive clean count: the number of pairs that, in step 6 and with no fix in between, jointly reported no findings and produced no re-raise. It starts at 0 and returns to 0 every time a fix is implemented in step 3.
 
-## 運用規則
+## Operating rules
 
-- サブエージェントの待機はポーリングで黙って行う。待機中に経過の実況や結果の予想を出力してコンテキストを浪費しない。ペアの両方の結果が揃うまで次の手順へ進まない。
-- サブエージェントは、同じ履歴のまま後から指示を送れる形で起動し、識別子を記録する。差し戻しはその識別子で同じサブエージェントへ送り、新しいサブエージェントで代用しない。
-- 監査は分担させない。ペアの2体それぞれに監査対象の全体を監査させる。
-- 新しく起動するサブエージェントには、監査対象とユーザーの要求だけを渡す。過去の指摘表、監査結果、却下済み一覧、マスターの見解、連続指摘なし数は渡さない。監査はこの状態で行わせる。
-- 「ペアの間で共有させる」とは、一方の提出物を加工せずにもう一方へ渡すことである。両者の見解が一致するまでマスターが受け渡しを繰り返し、一致した結果を連名で提出させる。マスターは中継に自分の見解を加えない。
-- 手順2と手順6で指摘表を共有させるときは、マスターが却下済み一覧も併せて提示する。却下済みの指摘と同じ内容の指摘について、指摘表から除くか、却下の取り消しを求めるかはペアが合議で決める。取り消しを求める指摘は、却下の根拠への反論を添えて連名の指摘表に載せさせる。
-- マスターは連名の提出物に従って行動し、項目を自分の判断で取捨しない。手順3の範囲の見直しで削る場合は、実装範囲の宣言に反映し、手順4で現ペアの確認を受ける。
-- サブエージェントを起動するとき、および差し戻すときは、毎回「サブエージェントの実施要項」を指示に含める。
+- Wait for subagents silently by polling. Do not waste context by narrating progress or predicting results while waiting. Do not move to the next step until both results of a pair are in.
+- Launch each subagent so that further instructions can be sent to it later with the same history, and record its identifier. Send every return to that same subagent through its identifier; never substitute a new subagent.
+- Do not divide the audit. Have each of the two subagents in a pair audit the whole audit target.
+- Give a newly launched subagent only the audit target and the user's requirements. Do not give it past findings tables, audit results, the rejected list, the master's views, or the consecutive clean count. Have the audit performed in this state.
+- "Share within the pair" means passing one subagent's submission to the other without modification. The master repeats this exchange until the two views agree, then has the agreed result submitted jointly. The master adds none of its own views to what it relays.
+- When sharing findings tables in step 2 and step 6, the master also presents the rejected list. For any finding with the same content as a rejected finding, the pair decides through deliberation whether to drop it from the findings table or to request revocation of the rejection. Have a finding whose rejection is to be revoked placed in the joint findings table with a rebuttal of the rejection rationale.
+- The master acts according to joint submissions and does not keep or discard items on its own judgment. When cutting things in a scope review in step 3, reflect the cut in the scope declaration and have the current pair verify it in step 4.
+- Include "Subagent guidelines" in the instructions every time a subagent is launched or a submission is returned to it.
 
-## サブエージェントの実施要項
+## Subagent guidelines
 
-- 指摘は常に全網羅を念頭に挙げる。見つけた問題は、重要度や件数を理由に絞り込まず、すべて指摘表に載せる。
-- 監査、合議、解消確認、妥当性監査、受領のどのターンでも、見逃しはそのターンで終わらない。見逃した問題は後続の監査で指摘され、自分に差し戻されて妥当性の監査や解消の確認を求められる。ループは新しいペアが2回連続で連名の指摘なしとするまで終わらないため、見逃すたびに自分の作業が増える。
-- すべての問題に網羅的に、完璧に対応するソフトウェアは存在しない。全網羅は問題を見つけることについての要求であり、対応を無限に広げることを求めるものではない。
-- 指摘には、その対応がいま必要か、現実の入力のうちどの範囲にどの程度の影響があるかを添える。
-- 実装範囲の宣言の外にある入力への対応を求める場合は、範囲の宣言の変更として挙げ、範囲を広げることで生じる実装量や複雑さとのトレードオフを示す。
-- 妥当性監査では、この影響の大きさとトレードオフに照らして指摘の妥当性を判断する。
+- Always raise findings with exhaustive coverage in mind. List every problem found in the findings table, without narrowing them down by severity or count.
+- In every turn, whether audit, deliberation, resolution check, validity audit, or acceptance, an oversight does not end with that turn. An overlooked problem will be raised by a later audit and returned to you for a validity audit or a resolution check. Because the loop does not end until new pairs jointly report no findings twice in a row, every oversight adds to your own work.
+- No software handles every problem exhaustively and perfectly. Exhaustive coverage applies to finding problems; how far to handle them is bounded by the scope declaration and its trade-offs.
+- Attach to each finding whether handling it is needed now, and which range of real-world inputs it affects and to what degree.
+- When requesting handling for inputs outside the scope declaration, raise it as a change to the scope declaration and present the trade-off against the implementation size and complexity that widening the scope brings.
+- In a validity audit, judge the validity of each finding against this magnitude of impact and these trade-offs.
 
-## マスターの実装要項
+## Master implementation guidelines
 
-- 却下された指摘は、監査対象を読んだ者が「なぜこのようなことをしているのか」と問う箇所を示している。却下の根拠を却下済み一覧に置くだけでは、クリーンコンテキストで監査するサブエージェントには届かない。蒸し返しは、監査対象の意図の表現が足りないという欠陥である。
-- 意図の補強対象ごとに、却下の根拠を監査対象自体に表現し、次の監査で同じ指摘が挙がらないようにする。蒸し返されるたびに、合議、妥当性監査、受領、補強の作業がマスターに返ってくる。
-- 表現の手段は no-comments.local.md に従う。まず構造と命名で意図を示し、それで足りない場合にだけコメントを書く。文書であれば、現在の読者が必要とする説明として本文に書く。
-- 補強の記述には、指摘や却下の経緯を書かない。却下の根拠となった事情そのものを、現在の監査対象の性質として書く。
-- 必要なのは無限の膨張ではなく、明確な実装範囲の宣言とトレードオフの提示である。最初の手順3を終えたら実装量を測り、ベースラインとして記録する。以降も手順3を終えるたびに実装量を測る。
-- 実装量がベースラインの2倍に達したら、その手順3のうちに実装範囲の全体を見直す。個々の機能と対応について、いま必要か、現実の入力のうちどの範囲にどの程度の影響があるかを評価し、見合わないものを削る。残した範囲を実装範囲の宣言として監査対象に書き、トレードオフを示す。見直し後の実装量を新しいベースラインとする。
+- A rejected finding marks a place where a reader of the audit target asks "why is it doing something like this?". A rationale kept only in the rejected list never reaches subagents that audit with a clean context. A re-raise is a defect: the audit target does not express its intent sufficiently.
+- For each intent reinforcement target, express the rejection rationale in the audit target itself so that the next audit does not raise the same finding. Every re-raise sends deliberation, validity audit, acceptance, and reinforcement work back to the master.
+- Choose the means of expression according to no-comments.local.md. Show intent first through structure and naming, and write a comment only when those are insufficient. For a document, write it in the body as an explanation the current reader needs.
+- Do not write the history of findings or rejections in the reinforcement. Write the circumstance that justified the rejection as a property of the current audit target.
+- Bound the growth of the audit target with a clear scope declaration and its trade-offs. After the first step 3, measure the implementation size and record it as the baseline. Measure the implementation size again at the end of every subsequent step 3.
+- When the implementation size reaches twice the baseline, review the whole implementation scope within that step 3. For each feature and each handling, evaluate whether it is needed now and which range of real-world inputs it affects and to what degree, and cut what does not pay for itself. Write the remaining scope into the audit target as the scope declaration and present the trade-offs. Use the implementation size after the review as the new baseline.
 
-## 手順
+## Procedure
 
-1. ペアを起動し、それぞれに監査対象の全体を監査させ、指摘表を提出させる。このペアが現ペアになる。
-2. 2つの指摘表をペアの間で共有させ、連名の指摘表を提出させる。
-3. 連名の指摘表、または手順4の連名の未了事項に従い、マスターが修正を実装する。意図の補強対象があれば、「マスターの実装要項」に従って意図を表現する。実装量を測り、ベースラインの2倍に達していれば実装範囲を見直す。連続指摘なし数を0に戻す。
-4. 現ペアの2体に差し戻し、指摘が解消したかを確認させる。手順3で意図を表現した場合は、却下の根拠が監査対象から読み取れるかも確認させる。手順3で実装範囲を見直した場合は、削った対応と実装範囲の宣言、示したトレードオフが妥当かも確認させる。
-   - 両者が「すべて解消」とした場合、手順5へ進む。
-   - それ以外の場合、解消状況の見解をペアの間で共有させ、連名で未了事項を提出させる。未了事項がなければ手順5へ、あれば手順3へ進む。
-5. 新しいペアを起動し、それぞれに監査対象の全体を監査させ、指摘表を提出させる。このペアが現ペアになり、直前の現ペアが旧ペアになる。
-6. 共有の前に、マスターが2つの個別の指摘表を却下済み一覧と照合し、蒸し返された指摘を意図の補強対象に加える。2つの指摘表をペアの間で共有させ、連名の指摘表を提出させる。
-   - 指摘がある場合、手順7へ進む。
-   - 連名で指摘なしとなり、意図の補強対象がある場合、手順3へ進む。
-   - 連名で指摘なしとなり、意図の補強対象がない場合、連続指摘なし数を1増やす。連続指摘なし数が2に達したらループを終了し、達していなければ手順5へ進む。
-7. 連名の指摘表を旧ペアの2体に差し戻し、各指摘の妥当性を監査させる。
-   - 両者が監査事項なしとした場合、手順3へ進む。
-   - それ以外の場合、監査結果をペアの間で共有させ、連名で監査結果を提出させる。監査事項がなければ手順3へ、あれば手順8へ進む。
-8. 連名の監査結果を現ペアの2体に差し戻し、受領させる。受領結果をペアの間で共有させ、連名で指摘表を再提出させる。再提出で取り下げられた指摘は、根拠となった監査結果とともに却下済み一覧と意図の補強対象へ加える。却下の取り消しを求めた指摘が再提出に残った場合は、却下済み一覧と意図の補強対象から外す。指摘が残る場合は手順7へ、指摘なしの場合は手順3へ進む。
+1. Launch a pair, have each subagent audit the whole audit target, and have each submit a findings table. This pair becomes the current pair.
+2. Share the two findings tables within the pair and have a joint findings table submitted.
+3. The master implements fixes according to the joint findings table, or according to the joint list of unresolved items from step 4. If there are intent reinforcement targets, express their intent according to "Master implementation guidelines". Measure the implementation size, and review the implementation scope if it has reached twice the baseline. Reset the consecutive clean count to 0.
+4. Return to both subagents of the current pair and have them check whether the findings are resolved. If intent was expressed in step 3, also have them check whether the rejection rationale can be read from the audit target. If the implementation scope was reviewed in step 3, also have them check whether the cut handling, the scope declaration, and the presented trade-offs are valid.
+   - If both report "all resolved", go to step 5.
+   - Otherwise, share their views on resolution within the pair and have a joint list of unresolved items submitted. If there are no unresolved items, go to step 5; otherwise, go to step 3.
+5. Launch a new pair, have each subagent audit the whole audit target, and have each submit a findings table. This pair becomes the current pair, and the former current pair becomes the previous pair.
+6. Before sharing, the master checks the two individual findings tables against the rejected list and adds re-raised findings to the intent reinforcement targets. Share the two findings tables within the pair and have a joint findings table submitted.
+   - If there are findings, go to step 7.
+   - If the joint result is no findings and there are intent reinforcement targets, go to step 3.
+   - If the joint result is no findings and there are no intent reinforcement targets, increment the consecutive clean count by 1. If it has reached 2, end the loop; otherwise, go to step 5.
+7. Return the joint findings table to both subagents of the previous pair and have them audit the validity of each finding.
+   - If both report nothing to raise, go to step 3.
+   - Otherwise, share the audit results within the pair and have a joint audit result submitted. If there is nothing to raise, go to step 3; otherwise, go to step 8.
+8. Return the joint audit result to both subagents of the current pair and have them accept it. Share their acceptance results within the pair and have a joint findings table resubmitted. Add findings withdrawn in the resubmission to the rejected list and to the intent reinforcement targets, together with the audit results that justified the withdrawal. If a finding whose rejection revocation was requested remains in the resubmission, remove it from the rejected list and from the intent reinforcement targets. If findings remain, go to step 7; if there are no findings, go to step 3.
 
 ```mermaid
 stateDiagram-v2
-    state "1. 初回ペアの監査" as S1
-    state "2. 合議" as S2
-    state "3. マスターの実装" as S3
-    state "4. 解消確認" as S4
-    state "5. 新しいペアの監査" as S5
-    state "6. 照合と合議" as S6
-    state "7. 旧ペアの妥当性監査" as S7
-    state "8. 現ペアの受領" as S8
+    state "1. Initial pair audit" as S1
+    state "2. Deliberation" as S2
+    state "3. Master implementation" as S3
+    state "4. Resolution check" as S4
+    state "5. New pair audit" as S5
+    state "6. Check and deliberation" as S6
+    state "7. Previous pair validity audit" as S7
+    state "8. Current pair acceptance" as S8
     state measure <<choice>>
     state resolved <<choice>>
     state judged <<choice>>
     state streak <<choice>>
     state validity <<choice>>
     state resubmitted <<choice>>
-    state "実装範囲の見直し" as Review
+    state "Scope review" as Review
 
     [*] --> S1
     S1 --> S2
     S2 --> S3
-    S3 --> measure : 実装量を計測、連続指摘なし数を0
-    measure --> Review : ベースラインの2倍以上
-    measure --> S4 : ベースラインの2倍未満
-    Review --> S4 : 新しいベースライン
+    S3 --> measure : measure size, reset clean count to 0
+    measure --> Review : at least 2x baseline
+    measure --> S4 : below 2x baseline
+    Review --> S4 : new baseline
     S4 --> resolved
-    resolved --> S5 : 未了事項なし
-    resolved --> S3 : 連名の未了事項あり
-    S5 --> S6 : 現ペアが旧ペアになる
+    resolved --> S5 : no unresolved items
+    resolved --> S3 : joint unresolved items
+    S5 --> S6 : current pair becomes previous pair
     S6 --> judged
-    judged --> S7 : 指摘あり
-    judged --> S3 : 指摘なし、補強対象あり
-    judged --> streak : 指摘なし、補強対象なし
-    streak --> S5 : 連続指摘なし数が1
-    streak --> [*] : 連続指摘なし数が2
+    judged --> S7 : findings
+    judged --> S3 : no findings, reinforcement targets
+    judged --> streak : no findings, no reinforcement targets
+    streak --> S5 : clean count is 1
+    streak --> [*] : clean count is 2
     S7 --> validity
-    validity --> S3 : 監査事項なし
-    validity --> S8 : 連名の監査事項あり
-    S8 --> resubmitted : 取り下げを却下済み一覧と補強対象へ
-    resubmitted --> S7 : 指摘が残る
-    resubmitted --> S3 : 指摘なし
+    validity --> S3 : nothing to raise
+    validity --> S8 : joint audit items
+    S8 --> resubmitted : withdrawals to rejected list and reinforcement targets
+    resubmitted --> S7 : findings remain
+    resubmitted --> S3 : no findings
 ```
 
-## 終了時の報告
+## Report at completion
 
-ループを終了したら、ユーザーに次を報告する。
+When the loop ends, report the following to the user.
 
-- 監査の巡回数（起動したペアの数）
-- 修正した指摘の一覧
-- 手順7と手順8で取り下げられた指摘とその理由
-- 意図を補強した箇所と、そのうち蒸し返された指摘
-- 実装量の尺度、最初のベースラインと最終の実装量、実装範囲の見直しで削った対応
-- 最終的な実装範囲の宣言とトレードオフ
-- 終了の根拠となった2つのペアの連名の指摘なし
+- The number of audit rounds (the number of pairs launched)
+- The list of findings that were fixed
+- The findings withdrawn in step 7 and step 8, with the reasons
+- The places where intent was reinforced, and which of those findings were re-raised
+- The implementation size measure, the initial baseline and the final implementation size, and the handling cut in scope reviews
+- The final scope declaration and trade-offs
+- The joint no-findings results of the two pairs that justified ending the loop
