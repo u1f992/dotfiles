@@ -18,7 +18,7 @@ Within the audit target the user specified, perform thorough self-improvement by
 - Rejected list: findings withdrawn in step 8 or by a joint decision, each with its justification and cause: the expression of the audit target invited it; its handling does not pay for itself against impact and trade-offs; or the auditor misread or erred on facts.
 - Re-raise: a finding in an individual table in step 2 or step 6 that points to the same statement or element as a rejected-list entry, wherever edits moved it, and asks for the same expected state, as the master judges.
 - Intent reinforcement targets: rejected-list entries whose rationale the audit target does not yet express. An entry becomes one when added with the first or second cause, or when re-raised, except an entry a joint decision upheld as non-converging, or one caused by impact and trade-offs while the audit target has no place for a scope declaration. It stops being one when step 4 confirms its rationale reads, its rejection is revoked, or a joint decision accepts or upholds it.
-- Size: one measure fixed for the loop, lines for code, words for prose, and characters where words are not space-delimited. The baseline is the size at step 1, moved only by user changes' net size, including edits at the user's instruction. The size may not exceed 1.2 times the baseline; growth beyond that means the audits or the fixes are of markedly low quality, and cutting what the loop added always restores it.
+- Size: one measure fixed for the loop, lines for code, words for prose, and characters where words are not space-delimited. The baseline is the size at step 1, moved only by user changes' net size, including edits at the user's instruction. The size may not exceed 1.2 times the baseline. The limit is deliberately arbitrary: it measures neither quality nor the right size, and exists to stop the growth that fixes made near the current form accumulate, forcing the abstraction to be revisited.
 - Scope declaration: a statement of the handled range and its trade-offs, in the audit target's body when it is a document, or in a document it includes, such as its README, when it is code; with no such place, in the completion report.
 - Consecutive clean count: incremented in step 6; reset to 0 by step 3, by step 8 going to step 5, and by a user change to the audit target.
 
@@ -31,16 +31,16 @@ Within the audit target the user specified, perform thorough self-improvement by
 - Every message to a subagent includes "Subagent guidelines" verbatim. A launch message also gives the user's request in the user's words, the audit target, the findings table format, the subagent's role, the size baseline and limit, and the instruction never to edit. Subagents read what their audit needs, except the loop state, unrelayed replies, and the saved copy. Later messages carry what the current step needs, such as file paths and the causes under "Rejected list". Give a new subagent nothing else.
 - "Share within the pair" means relaying in turns, unmodified and without the master's views: the secondary's submission goes to the primary to draft, the draft goes with the primary's submission to the secondary, and each later draft goes to the other, who agrees or redrafts. The pair agrees when one accepts the draft unchanged, and the primary submits it. An item stalls when, after the first draft, each has returned the same position on it twice, matched as re-raises are; it goes forward with both views, kept as a finding or objection, and in step 4 counts as unresolved.
 - In step 2 and step 6, the master presents the rejected list and the re-raises it found. The pair drops each re-raise or requests revocation with a rebuttal in the joint table.
-- The master acts on joint submissions and joint decisions, never on its own judgment of what to keep. A scope review's cut of anything that existed before the loop needs the current pair's joint decision. A finding the master cannot implement goes back to the current pair, which revises it or withdraws it with a cause by joint decision.
+- The master acts on joint submissions and joint decisions, never on its own judgment of what to keep. Narrowing the handled range needs the current pair's joint decision. A finding the master cannot implement goes back to the current pair, which revises it or withdraws it with a cause by joint decision.
 - An item that does not converge goes to a joint decision of the current pair.
   - Items: an unresolved item or target that step 4 returns to step 3 a third time, and each time after; a rejected-list entry re-raised a third time, decided before deliberation; a finding two step 8s have contested, traced through its revisions. A re-raise counts once per check.
   - An accepted item counts as resolved, one given a direction returns to step 3, an upheld rejection drops the re-raise for good, a revoked one rejoins the findings, and a kept finding goes to step 3 with the objection recorded.
-  - If the joint decision stalls, unresolved items and targets count as resolved, rejections and findings are kept, and cuts are not made.
+  - If the joint decision stalls, unresolved items and targets count as resolved, rejections and findings are kept, and the handled range is not narrowed.
 - Record everything branches and the report need, including each subagent's identifier, pair, and role, in a state file outside the audit target, and branch from it, since the master's context may be compacted.
 
 ## Subagent guidelines
 
-- You audit as one of a pair; the primary drafts what the two of you conclude, and the order gives neither view more weight. In a resolution check, report whether the master's fixes, reinforced rationales, and scope cuts hold, with regressions as unresolved and other problems left to the next pair. As the previous pair, you audit the validity of the next pair's findings, and that pair accepts, rebuts, or revises each objection. In a joint decision, weigh impact and trade-offs against the views recorded. The scope declaration states the handled range and its trade-offs; without one, the handled range is what the audit target handles now.
+- You audit as one of a pair; the primary drafts what the two of you conclude, and the order gives neither view more weight. In a resolution check, report whether the master's fixes, reinforced rationales, and rewrites hold, with regressions as unresolved and other problems left to the next pair. As the previous pair, you audit the validity of the next pair's findings, and that pair accepts, rebuts, or revises each objection. In a joint decision, weigh impact and trade-offs against the views recorded. The scope declaration states the handled range and its trade-offs; without one, the handled range is what the audit target handles now.
 - Always raise findings with exhaustive coverage in mind. List every problem found in the findings table, without narrowing them down by severity or count.
 - In every turn, whether audit, deliberation, resolution check, validity audit, acceptance, or joint decision, an oversight does not end with that turn. If the next pair raises a problem you overlooked, it returns to you for a validity audit, and every oversight prolongs the loop and adds work.
 - No software handles every problem exhaustively and perfectly. Exhaustive coverage applies to finding problems; how far to handle them is bounded by the scope declaration and its trade-offs.
@@ -52,14 +52,14 @@ Within the audit target the user specified, perform thorough self-improvement by
 ## Master implementation guidelines
 
 - A rejection caused by expression marks where a reader asks "why is it doing this?"; one caused by impact and trade-offs marks a boundary of the handled range. A rationale kept only in the rejected list never reaches fresh auditors, so express each target's rationale in the audit target, as a property of it rather than a history, following `no-comments.local.md` and `no-task-context-in-docs.local.md`: structure and naming first, a comment only when they fall short, and in a document the explanation its current reader needs.
-- When the size exceeds 1.2 times the baseline, review the whole handled range in that step 3: cut or condense what does not pay for itself until the size is back within 1.2 times, and write the remaining range as the scope declaration.
+- When the size exceeds 1.2 times the baseline, the limit asks for the abstraction to be revisited, not for the size to be lowered. Ignoring inputs the handled range covers, folding tests into tables, tidying notation, and other local edits meet the limit while staying near the current form; they are shallow measures that solve nothing. In that step 3, revisit the abstraction against the handled range as the fixes have revealed it, introduce a new one, rewrite the whole audit target under it until the size is back within 1.2 times, and write the handled range as the scope declaration.
 
 ## Procedure
 
 1. Measure the baseline. Launch a pair, have each subagent audit the whole audit target and submit a findings table. This pair becomes the current pair.
 2. If the rejected list is not empty, check the tables for re-raises as in step 6. Share the tables within the pair and have a joint findings table submitted. With no findings and no targets, go to step 5; otherwise, go to step 3.
-3. Remove the rejections whose revocation was requested; implement the joint table, the unresolved items, or the joint decision that led here; express the targets' intent; measure the size and review the handled range if it exceeds 1.2 times the baseline. Reset the clean count to 0.
-4. Give the current pair what step 3 changed, with each reinforced target's rationale, and have them check it; regressions and disputed cuts are unresolved. If both report "all resolved", there are no unresolved items; otherwise, share their views and have a joint list of unresolved items submitted. Remove the targets confirmed as readable. If unresolved items or targets remain, go to step 3; otherwise, go to step 5.
+3. Remove the rejections whose revocation was requested; implement the joint table, the unresolved items, or the joint decision that led here; express the targets' intent; measure the size and rewrite under a new abstraction if it exceeds 1.2 times the baseline. Reset the clean count to 0.
+4. Give the current pair what step 3 changed, with each reinforced target's rationale, and have them check it; regressions, and inputs a rewrite stopped handling without a joint decision, are unresolved. If both report "all resolved", there are no unresolved items; otherwise, share their views and have a joint list of unresolved items submitted. Remove the targets confirmed as readable. If unresolved items or targets remain, go to step 3; otherwise, go to step 5.
 5. Launch a new pair to audit the whole audit target and submit findings tables. It becomes the current pair, and the former current pair becomes the previous pair.
 6. Check the tables against the rejected list and make re-raised entries targets as defined. Share the tables and have a joint findings table submitted.
    - With findings, go to step 7.
@@ -87,16 +87,16 @@ stateDiagram-v2
     state streak <<choice>>
     state validity <<choice>>
     state resubmitted <<choice>>
-    state "Scope review" as Review
+    state "Rewrite under new abstraction" as Rewrite
 
     [*] --> S1
     S1 --> S2
     S2 --> S3 : findings or reinforcement targets
     S2 --> S5 : no findings, no reinforcement targets
     S3 --> measure : measure size, reset clean count to 0
-    measure --> Review : above 1.2x baseline
+    measure --> Rewrite : above 1.2x baseline
     measure --> S4 : within 1.2x baseline
-    Review --> S4 : back within 1.2x, new baseline only by user changes
+    Rewrite --> S4 : back within 1.2x, new baseline only by user changes
     S4 --> resolved
     resolved --> S5 : no unresolved items or reinforcement targets
     resolved --> S3 : joint unresolved items or reinforcement targets
@@ -121,8 +121,8 @@ Joint decisions and replacements of unusable pairs leave this flow and return wh
 
 ## Scope of this procedure
 
-Rounds are uncapped, since a cap would end the loop before independent audits converge; the 1.2 times limit, short deliberations, and joint decisions bound the cost. The current pair decides as a party, so overridden objections go into the report and the next pair's audit raises any defect the decision introduced. The user's request, given verbatim to every subagent, bounds joint decisions and cuts. Findings dropped in deliberation are not recorded, since re-deliberation costs less than unexamined entries in the rejected list.
+Rounds are uncapped, since a cap would end the loop before independent audits converge; short deliberations and joint decisions bound the cost. The current pair decides as a party, so overridden objections go into the report and the next pair's audit raises any defect the decision introduced. The user's request, given verbatim to every subagent, bounds joint decisions and narrowing of the handled range. Findings dropped in deliberation are not recorded, since re-deliberation costs less than unexamined entries in the rejected list.
 
 ## Report at completion
 
-Report: pairs launched; findings fixed; the rejected list with causes; revoked rejections; reinforcements and their re-raises; joint decisions with rationale and overridden objections; baseline, final size, and scope review cuts; the scope declaration; and the two no-findings results. If stopped early, add the stopping point, clean count, and open items.
+Report: pairs launched; findings fixed; the rejected list with causes; revoked rejections; reinforcements and their re-raises; joint decisions with rationale and overridden objections; baseline, final size, and the rewrites with the abstractions they introduced; the scope declaration; and the two no-findings results. If stopped early, add the stopping point, clean count, and open items.
