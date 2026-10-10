@@ -37,6 +37,7 @@ Within the audit target the user specified, perform thorough self-improvement by
   - An accepted item counts as resolved, one given a direction returns to step 3, an upheld rejection drops the re-raise for good, a revoked one rejoins the findings, and a kept finding goes to step 3 with the objection recorded.
   - If the joint decision stalls, unresolved items and targets count as resolved, rejections and findings are kept, and the handled range is not narrowed.
 - Record everything branches and the report need, including each subagent's identifier, pair, and role, in a state file outside the audit target, and branch from it, since the master's context may be compacted.
+- Returning to the initial state retires every pair, empties the rejected list and the targets, resets the clean count to 0, and goes to step 1. The state file keeps the discard declarations, replacements, and other records the report needs.
 
 ## Subagent guidelines
 
@@ -52,14 +53,14 @@ Within the audit target the user specified, perform thorough self-improvement by
 ## Master implementation guidelines
 
 - A rejection caused by expression marks where a reader asks "why is it doing this?"; one caused by impact and trade-offs marks a boundary of the handled range. A rationale kept only in the rejected list never reaches fresh auditors, so express each target's rationale in the audit target, as a property of it rather than a history, following `no-comments.local.md` and `no-task-context-in-docs.local.md`: structure and naming first, a comment only when they fall short, and in a document the explanation its current reader needs.
-- When the size exceeds 1.2 times the baseline, the limit asks for the abstraction to be revisited, not for the size to be lowered. Ignoring inputs the handled range covers, folding tests into tables, tidying notation, deleting comments, and other local edits meet the limit while staying near the current form; they are shallow measures that solve nothing. In that step 3, revisit the abstraction against the handled range as the fixes have revealed it, introduce a new one, rewrite the whole audit target under it until the size is back within 1.2 times, and write the handled range as the scope declaration.
+- When the size exceeds 1.2 times the baseline, the limit asks for the abstraction to be revisited, not for the size to be lowered. Ignoring inputs the handled range covers, folding tests into tables, tidying notation, deleting comments, and other local edits meet the limit while staying near the current form; they are shallow measures that solve nothing. In that step 3, first declare the original input, the audit target in its current form, discarded. Then propose a new abstraction that covers every input of the handled range and the problems that step 3 was solving, the joint table, unresolved items, or joint decision that led to it, and replace the original input completely with an implementation under it, ignoring the size limit derived from the original input. Write the handled range as the fixes have revealed it as the scope declaration, and return the loop to the initial state.
 
 ## Procedure
 
 1. Measure the baseline. Launch a pair, have each subagent audit the whole audit target and submit a findings table. This pair becomes the current pair.
 2. If the rejected list is not empty, check the tables for re-raises as in step 6. Share the tables within the pair and have a joint findings table submitted. With no findings and no targets, go to step 5; otherwise, go to step 3.
-3. Remove the rejections whose revocation was requested; implement the joint table, the unresolved items, or the joint decision that led here; express the targets' intent; measure the size and rewrite under a new abstraction if it exceeds 1.2 times the baseline. Reset the clean count to 0.
-4. Give the current pair what step 3 changed, with each reinforced target's rationale, and have them check it; regressions, and inputs a rewrite stopped handling without a joint decision, are unresolved. If both report "all resolved", there are no unresolved items; otherwise, share their views and have a joint list of unresolved items submitted. Remove the targets confirmed as readable. If unresolved items or targets remain, go to step 3; otherwise, go to step 5.
+3. Remove the rejections whose revocation was requested; implement the joint table, the unresolved items, or the joint decision that led here; express the targets' intent; measure the size, and if it exceeds 1.2 times the baseline, declare the original input discarded, replace it under a new abstraction, and return to the initial state. Reset the clean count to 0.
+4. Give the current pair what step 3 changed, with each reinforced target's rationale, and have them check it; regressions are unresolved. If both report "all resolved", there are no unresolved items; otherwise, share their views and have a joint list of unresolved items submitted. Remove the targets confirmed as readable. If unresolved items or targets remain, go to step 3; otherwise, go to step 5.
 5. Launch a new pair to audit the whole audit target and submit findings tables. It becomes the current pair, and the former current pair becomes the previous pair.
 6. Check the tables against the rejected list and make re-raised entries targets as defined. Share the tables and have a joint findings table submitted.
    - With findings, go to step 7.
@@ -87,16 +88,16 @@ stateDiagram-v2
     state streak <<choice>>
     state validity <<choice>>
     state resubmitted <<choice>>
-    state "Rewrite under new abstraction" as Rewrite
+    state "Discard original input, replace under new abstraction" as Replace
 
     [*] --> S1
     S1 --> S2
     S2 --> S3 : findings or reinforcement targets
     S2 --> S5 : no findings, no reinforcement targets
     S3 --> measure : measure size, reset clean count to 0
-    measure --> Rewrite : above 1.2x baseline
+    measure --> Replace : above 1.2x baseline
     measure --> S4 : within 1.2x baseline
-    Rewrite --> S4 : back within 1.2x, new baseline only by user changes
+    Replace --> S1 : return to initial state, measure new baseline
     S4 --> resolved
     resolved --> S5 : no unresolved items or reinforcement targets
     resolved --> S3 : joint unresolved items or reinforcement targets
@@ -125,4 +126,4 @@ Rounds are uncapped, since a cap would end the loop before independent audits co
 
 ## Report at completion
 
-Report: pairs launched; findings fixed; the rejected list with causes; revoked rejections; reinforcements and their re-raises; joint decisions with rationale and overridden objections; baseline, final size, and the rewrites with the abstractions they introduced; the scope declaration; and the two no-findings results. If stopped early, add the stopping point, clean count, and open items.
+Report: pairs launched; findings fixed; the rejected list with causes; revoked rejections; reinforcements and their re-raises; joint decisions with rationale and overridden objections; each baseline, final size, and the discard declarations and replacements with the abstractions they introduced; the scope declaration; and the two no-findings results. If stopped early, add the stopping point, clean count, and open items.
