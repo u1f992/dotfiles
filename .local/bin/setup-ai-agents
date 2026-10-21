@@ -28,6 +28,23 @@ done
 script_directory=$(CDPATH= cd -P -- "$(dirname -- "$script_path")" && pwd)
 dotfiles_directory=$(CDPATH= cd -P -- "$script_directory/../.." && pwd)
 
+existing_targets=$(
+  for item in .claude .agents .codex AGENTS.override.md; do
+    find -L "$dotfiles_directory/$item" -type f
+  done | while IFS= read -r source; do
+    target=$destination/${source#"$dotfiles_directory/"}
+    if [ -e "$target" ] || [ -L "$target" ]; then
+      printf '%s\n' "$target"
+    fi
+  done
+)
+
+if [ -n "$existing_targets" ]; then
+  printf '%s: refusing to overwrite existing files in %s:\n' "${0##*/}" "$destination" >&2
+  printf '%s\n' "$existing_targets" >&2
+  exit 1
+fi
+
 cp -RL \
   "$dotfiles_directory/.claude" \
   "$dotfiles_directory/.agents" \
