@@ -13,6 +13,14 @@ if [ ! -d "$destination" ]; then
   exit 1
 fi
 
+resolved_destination=$(CDPATH= cd -P -- "$destination" && pwd)
+resolved_home=$(CDPATH= cd -P -- "$HOME" && pwd)
+
+if [ "$resolved_destination" = "$resolved_home" ]; then
+  printf '%s: refusing to deploy into the home directory: %s\n' "${0##*/}" "$destination" >&2
+  exit 1
+fi
+
 script_path=$0
 
 while [ -L "$script_path" ]; do
