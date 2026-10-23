@@ -1,22 +1,15 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 
 const repositoryRoot = new URL("../", import.meta.url);
-const rulePaths = [
-  ".codex/rules/agents-preamble.local.md",
-  ".agents/rules/local-tmp.local.md",
-  ".agents/rules/no-comments.local.md",
-  ".agents/rules/no-task-context-in-docs.local.md",
-  ".agents/rules/dedicated-editing-tools.local.md",
-  ".agents/rules/no-external-operations.local.md",
-  ".agents/rules/no-head-tail-grep.local.md",
-  ".agents/rules/no-webfetch.local.md",
-  ".agents/rules/reject-words.local.md",
-];
+const rulesDirectory = new URL(".agents/rules/", repositoryRoot);
 
+const ruleNames = (await readdir(rulesDirectory))
+  .filter((name) => name.endsWith(".md"))
+  .sort();
 const rules = await Promise.all(
-  rulePaths.map((path) => readFile(new URL(path, repositoryRoot), "utf8")),
+  ruleNames.map((name) => readFile(new URL(name, rulesDirectory), "utf8")),
 );
 const output = `${rules.map((rule) => rule.trim()).join("\n\n")}\n`;
-const outputUrl = new URL("AGENTS.override.md", repositoryRoot);
+const outputUrl = new URL(".codex/AGENTS.md", repositoryRoot);
 
 await writeFile(outputUrl, output);
