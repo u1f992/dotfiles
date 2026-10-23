@@ -68,7 +68,7 @@ Public mentions: [kawasin73's post](https://kawasin73.hatenablog.com/entry/2026/
 
 Codex reads `~/.codex/AGENTS.md` before the project's `AGENTS.md` files. `link.sh` generates `.codex/AGENTS.md` by joining the files under `.agents/rules/` in name order. Run `link.sh` again after changing a rule.
 
-`.codex/config.toml` enables hooks. `.codex/rules/no-external-operations.rules` blocks `gh pr create`, `gh issue create`, and `git push`. Codex requires each non-managed hook to be reviewed and trusted once; open `/hooks` on first use.
+Codex requires each non-managed hook to be reviewed and trusted once; open `/hooks` on first use.
 
 ### Skills
 
