@@ -126,15 +126,13 @@ Shared hook data and host-independent policy code have one canonical copy under 
 ├── policy.local/
 │   ├── cli.ts
 │   ├── hook-adapter.ts
-│   ├── reject-words.ts
-│   └── require-tasks.ts
-├── reject-words.local.json
-└── require-tasks.local.json
+│   └── reject-words.ts
+└── reject-words.local.json
 ```
 
 Claude and Codex keep only their host-specific hook schema and `HookAdapter` in `.claude/hooks/claude.local.ts` and `.codex/hooks/codex.local.ts`. Their `policy.local/` directories and JSON files are relative symlinks to `.agents/hooks/`. The executable entry points only connect an adapter, a policy, and its JSON file; stdin/stdout handling lives in the shared `cli.ts`.
 
-Each host uses one `stop.local.ts` hook that evaluates the banned-word and pending-task policies together and merges their messages into one Stop decision. Codex's edit adapter extracts only added lines from an `apply_patch` command, so deleted and unchanged context do not trigger the banned-word policy.
+Each host registers `reject-words.local.ts` for both the Stop and PreToolUse events; the policy checks the final assistant message on Stop and the content to be written on PreToolUse. Codex's edit adapter extracts only added lines from an `apply_patch` command, so deleted and unchanged context do not trigger the banned-word policy.
 
 `cp -RL` follows all these links, so deployed projects are self-contained and contain regular files rather than links back into this repository.
 

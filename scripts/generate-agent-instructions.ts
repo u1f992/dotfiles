@@ -12,7 +12,6 @@ const rulePaths = [
   ".agents/rules/no-head-tail-grep.local.md",
   ".agents/rules/no-webfetch.local.md",
   ".agents/rules/reject-words.local.md",
-  ".agents/rules/require-tasks.local.md",
 ];
 
 const rules = await Promise.all(

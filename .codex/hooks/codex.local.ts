@@ -132,39 +132,15 @@ export type PreToolUseDecision =
 
 export type Decision = StopDecision | PreToolUseDecision;
 
-const mergeStopDecisions = (
-  decisions: readonly StopDecision[],
-): StopDecision => {
-  const reasons = decisions.flatMap((decision) =>
-    decision.decision === "block" ? [decision.reason] : [],
-  );
-  const warnings = decisions.flatMap(({ systemMessage }) =>
-    systemMessage === undefined ? [] : [systemMessage],
-  );
-  const systemMessage = warnings.join("\n");
-  if (reasons.length > 0) {
-    const blocked: StopDecision = {
-      decision: "block",
-      reason: reasons.join("\n\n"),
-    };
-    return systemMessage === "" ? blocked : { ...blocked, systemMessage };
-  }
-  return systemMessage === "" ? {} : { systemMessage };
-};
-
-export const adapter: HookAdapter<Decision, StopDecision> = {
+export const adapter: HookAdapter<Decision> = {
   allow: () => ({}),
   warn: (systemMessage) => ({ systemMessage }),
   stop: {
-    matches: isStopHookInput,
     message: (input) =>
       isStopHookInputWithMessage(input)
         ? input.last_assistant_message
         : undefined,
-    allow: () => ({}),
-    warn: (systemMessage) => ({ systemMessage }),
     block: (reason) => ({ decision: "block", reason }),
-    merge: mergeStopDecisions,
   },
   edits: [
     {

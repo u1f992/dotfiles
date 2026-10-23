@@ -84,22 +84,12 @@ test("削除行と文脈行の禁止語は拒否しない", () => {
   assert.deepEqual(decision, {});
 });
 
-test("複数のStop拒否理由を一つの決定へ統合する", () => {
-  const decisions: StopDecision[] = [
-    { decision: "block", reason: "first" },
-    { decision: "block", reason: "second" },
-  ];
-  const merged = adapter.stop.merge(decisions);
-  assert.equal(merged.decision, "block");
-  assert.equal(merged.reason, "first\n\nsecond");
-});
-
 const hooksDir = fileURLToPath(
   new URL("../../../.codex/hooks/", import.meta.url),
 );
 
-test("統合Stopエントリポイントが禁止語を拒否する", () => {
-  const hookPath = `${hooksDir}stop.local.ts`;
+test("Stopエントリポイントが禁止語を拒否する", () => {
+  const hookPath = `${hooksDir}reject-words.local.ts`;
   fs.accessSync(hookPath, fs.constants.X_OK);
   const result = spawnSync(process.execPath, [hookPath], {
     input: JSON.stringify(stop("ご希望なら")),

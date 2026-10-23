@@ -113,7 +113,3 @@ These expressions are prohibited because a response that resorts to them, as a r
 A response that avoids every listed word while keeping the framing is still in violation; the hook merely failed to catch it. The list is a net with holes, not the definition of the rule.
 
 So do not read a rejection as a request to find wording the hook permits. Read it as evidence that the turn was framed wrongly, and rebuild the response from what was actually asked.
-
-## Task completion verification
-
-If unfinished tasks remain, the hooks prevent the task from ending. When waiting for delegated asynchronous work to finish, wait in the foreground. Once a task is complete, update `hooks/require-tasks.local.json` under the active agent's configuration directory to remove the obstruction.

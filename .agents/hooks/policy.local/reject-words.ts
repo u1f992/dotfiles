@@ -31,8 +31,8 @@ const stopReason = (found: readonly BannedWord[]) =>
 const editReason = (found: readonly BannedWord[]) =>
   `The content to write resorts to banned expressions:\n${formatFound(found)}\n${framingNotice}\n`;
 
-export const rejectWords = <Decision, StopDecision extends Decision>(
-  adapter: HookAdapter<Decision, StopDecision>,
+export const rejectWords = <Decision>(
+  adapter: HookAdapter<Decision>,
   input: unknown,
   banned: { url: URL; content: unknown },
   styleDeny: (text: string) => string,
@@ -61,25 +61,4 @@ export const rejectWords = <Decision, StopDecision extends Decision>(
   }
 
   return adapter.allow();
-};
-
-export const rejectWordsAtStop = <Decision, StopDecision extends Decision>(
-  adapter: HookAdapter<Decision, StopDecision>,
-  input: unknown,
-  banned: { url: URL; content: unknown },
-  styleDeny: (text: string) => string,
-): StopDecision => {
-  if (!isBannedWordArray(banned.content)) {
-    return adapter.stop.warn(
-      `${banned.url.pathname} must be a JSON array of { word: string, reason: string }`,
-    );
-  }
-
-  const message = adapter.stop.message(input);
-  if (message === undefined) return adapter.stop.allow();
-
-  const found = findBanned(message, banned.content);
-  return found.length > 0
-    ? adapter.stop.block(styleDeny(stopReason(found)))
-    : adapter.stop.allow();
 };
