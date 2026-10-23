@@ -1,0 +1,1 @@
+../../../dot_agents/hooks/policy/cli.ts

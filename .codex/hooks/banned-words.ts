@@ -1,1 +1,0 @@
-../../.agents/hooks/banned-words.ts

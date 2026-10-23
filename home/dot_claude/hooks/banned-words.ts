@@ -1,0 +1,1 @@
+../../dot_agents/hooks/banned-words.ts
