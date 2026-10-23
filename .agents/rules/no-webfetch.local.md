@@ -1,6 +1,6 @@
 ## Prohibition of WebFetch against primary sources
 
-WebFetch retrieves summaries through a low-reasoning, fast-response model, so it is not suitable for tasks that fetch source code or documentation. WebFetch access to some domains is blocked outright, but this rule is not limited to those domains. Reconsider what kind of information you are retrieving, and obtain the original source through `gh`, `git clone`, or API access via `curl` / `wget`.
+WebFetch retrieves summaries through a low-reasoning, fast-response model, so it is not suitable for tasks that fetch source code or documentation. Reconsider what kind of information you are retrieving, and obtain the original source through `gh`, `git clone`, or API access via `curl` / `wget`.
 
 ### Prohibition of circumvention
 
