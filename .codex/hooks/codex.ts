@@ -12,17 +12,10 @@ type CommonHookInput = {
   cwd: string;
   hook_event_name: string;
   model: string;
-  permission_mode:
-    "default" | "acceptEdits" | "plan" | "dontAsk" | "bypassPermissions";
+  permission_mode: "default" | "acceptEdits" | "plan" | "dontAsk" | "bypassPermissions";
 };
 
-const permissionModes = new Set([
-  "default",
-  "acceptEdits",
-  "plan",
-  "dontAsk",
-  "bypassPermissions",
-]);
+const permissionModes = new Set(["default", "acceptEdits", "plan", "dontAsk", "bypassPermissions"]);
 
 const isCommonHookInput = (x: unknown): x is CommonHookInput =>
   typeof x === "object" &&
@@ -63,16 +56,13 @@ export const isStopHookInput = (x: unknown): x is StopHookInput =>
   "stop_hook_active" in x &&
   typeof x.stop_hook_active === "boolean" &&
   "last_assistant_message" in x &&
-  (typeof x.last_assistant_message === "string" ||
-    x.last_assistant_message === null);
+  (typeof x.last_assistant_message === "string" || x.last_assistant_message === null);
 
 export type StopHookInputWithMessage = StopHookInput & {
   last_assistant_message: string;
 };
 
-export const isStopHookInputWithMessage = (
-  x: unknown,
-): x is StopHookInputWithMessage =>
+export const isStopHookInputWithMessage = (x: unknown): x is StopHookInputWithMessage =>
   isStopHookInput(x) && typeof x.last_assistant_message === "string";
 
 export type StopDecision =
@@ -93,9 +83,7 @@ export type ApplyPatchToolUseInput = CommonHookInput & {
   tool_input: { command: string };
 };
 
-export const isApplyPatchToolUseInput = (
-  x: unknown,
-): x is ApplyPatchToolUseInput => {
+export const isApplyPatchToolUseInput = (x: unknown): x is ApplyPatchToolUseInput => {
   if (!isCommonHookInput(x) || x.hook_event_name !== "PreToolUse") return false;
   if (!("turn_id" in x) || typeof x.turn_id !== "string") return false;
   if (!("tool_use_id" in x) || typeof x.tool_use_id !== "string") return false;
@@ -137,17 +125,13 @@ export const adapter: HookAdapter<Decision> = {
   warn: (systemMessage) => ({ systemMessage }),
   stop: {
     message: (input) =>
-      isStopHookInputWithMessage(input)
-        ? input.last_assistant_message
-        : undefined,
+      isStopHookInputWithMessage(input) ? input.last_assistant_message : undefined,
     block: (reason) => ({ decision: "block", reason }),
   },
   edits: [
     {
       content: (input) =>
-        isApplyPatchToolUseInput(input)
-          ? extractAddedContent(input.tool_input.command)
-          : undefined,
+        isApplyPatchToolUseInput(input) ? extractAddedContent(input.tool_input.command) : undefined,
       deny: (permissionDecisionReason) => ({
         hookSpecificOutput: {
           hookEventName: "PreToolUse",

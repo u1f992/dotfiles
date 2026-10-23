@@ -39,15 +39,15 @@ const applyPatch = (command: string) => ({
   tool_input: { command },
 });
 
-test("CodexのStop入力はnullの最終メッセージも受け入れる", () => {
+void test("CodexのStop入力はnullの最終メッセージも受け入れる", () => {
   assert.equal(isStopHookInput(stop(null)), true);
 });
 
-test("Codexのapply_patch入力を判定する", () => {
+void test("Codexのapply_patch入力を判定する", () => {
   assert.equal(isApplyPatchToolUseInput(applyPatch("*** Begin Patch")), true);
 });
 
-test("apply_patchから追加行だけを抽出する", () => {
+void test("apply_patchから追加行だけを抽出する", () => {
   const patch = [
     "*** Begin Patch",
     "*** Update File: x.md",
@@ -63,33 +63,24 @@ test("apply_patchから追加行だけを抽出する", () => {
 const bans = [{ patterns: [/forbidden/], reason: "test" }];
 const bannedUrl = new URL("file:///hooks/banned-words.ts");
 const checkPatch = (command: string) =>
-  rejectWords(
-    adapter,
-    applyPatch(command),
-    { url: bannedUrl, content: bans },
-    (text) => text,
-  );
+  rejectWords(adapter, applyPatch(command), { url: bannedUrl, content: bans }, (text) => text);
 
-test("追加行の禁止語を拒否する", () => {
-  const decision = checkPatch(
-    "*** Begin Patch\n*** Update File: x\n+forbidden\n*** End Patch",
-  );
+void test("追加行の禁止語を拒否する", () => {
+  const decision = checkPatch("*** Begin Patch\n*** Update File: x\n+forbidden\n*** End Patch");
   assert.ok("hookSpecificOutput" in decision);
   assert.equal(decision.hookSpecificOutput?.permissionDecision, "deny");
 });
 
-test("削除行と文脈行の禁止語は拒否しない", () => {
+void test("削除行と文脈行の禁止語は拒否しない", () => {
   const decision = checkPatch(
     "*** Begin Patch\n*** Update File: x\n forbidden\n-forbidden\n+clean\n*** End Patch",
   );
   assert.deepEqual(decision, {});
 });
 
-const hooksDir = fileURLToPath(
-  new URL("../../../.codex/hooks/", import.meta.url),
-);
+const hooksDir = fileURLToPath(new URL("../../../.codex/hooks/", import.meta.url));
 
-test("Stopエントリポイントが禁止語を拒否する", () => {
+void test("Stopエントリポイントが禁止語を拒否する", () => {
   const hookPath = `${hooksDir}reject-words.ts`;
   fs.accessSync(hookPath, fs.constants.X_OK);
   const literal = bannedWords

@@ -37,7 +37,7 @@ const stopDecisions = {
   allowWithMessage: { systemMessage: "注意" },
 } satisfies Record<string, StopDecision>;
 
-test("Stopの決定はそのままJSONの形になる", () => {
+void test("Stopの決定はそのままJSONの形になる", () => {
   assert.deepEqual(JSON.parse(JSON.stringify(stopDecisions)), {
     block: { decision: "block", reason: "続けて" },
     blockWithMessage: {
@@ -88,7 +88,7 @@ const preToolUseDecisions = {
   },
 } satisfies Record<string, PreToolUseDecision>;
 
-test("PreToolUseの決定はそのままJSONの形になる", () => {
+void test("PreToolUseの決定はそのままJSONの形になる", () => {
   assert.deepEqual(JSON.parse(JSON.stringify(preToolUseDecisions)), {
     deny: {
       hookSpecificOutput: {
@@ -116,43 +116,31 @@ test("PreToolUseの決定はそのままJSONの形になる", () => {
   });
 });
 
-test("isStopHookInputはStopの入力だけを受け入れる", () => {
-  assert.ok(
-    isStopHookInput({ stop_hook_active: false, last_assistant_message: "x" }),
-  );
+void test("isStopHookInputはStopの入力だけを受け入れる", () => {
+  assert.ok(isStopHookInput({ stop_hook_active: false, last_assistant_message: "x" }));
   assert.ok(!isStopHookInput({ stop_hook_active: false }));
   assert.ok(!isStopHookInput({ last_assistant_message: "x" }));
-  assert.ok(
-    !isStopHookInput({ stop_hook_active: "no", last_assistant_message: "x" }),
-  );
+  assert.ok(!isStopHookInput({ stop_hook_active: "no", last_assistant_message: "x" }));
   assert.ok(!isStopHookInput(null));
   assert.ok(!isStopHookInput("stop"));
 });
 
-test("isWriteToolUseInputはWriteの入力だけを受け入れる", () => {
-  assert.ok(
-    isWriteToolUseInput({ tool_name: "Write", tool_input: { content: "x" } }),
-  );
-  assert.ok(
-    !isWriteToolUseInput({ tool_name: "Edit", tool_input: { content: "x" } }),
-  );
+void test("isWriteToolUseInputはWriteの入力だけを受け入れる", () => {
+  assert.ok(isWriteToolUseInput({ tool_name: "Write", tool_input: { content: "x" } }));
+  assert.ok(!isWriteToolUseInput({ tool_name: "Edit", tool_input: { content: "x" } }));
   assert.ok(!isWriteToolUseInput({ tool_name: "Write", tool_input: {} }));
   assert.ok(!isWriteToolUseInput({ tool_name: "Write" }));
   assert.ok(!isWriteToolUseInput(null));
 });
 
-test("isEditToolUseInputはEditの入力だけを受け入れる", () => {
-  assert.ok(
-    isEditToolUseInput({ tool_name: "Edit", tool_input: { new_string: "x" } }),
-  );
+void test("isEditToolUseInputはEditの入力だけを受け入れる", () => {
+  assert.ok(isEditToolUseInput({ tool_name: "Edit", tool_input: { new_string: "x" } }));
   assert.ok(
     !isEditToolUseInput({
       tool_name: "Write",
       tool_input: { new_string: "x" },
     }),
   );
-  assert.ok(
-    !isEditToolUseInput({ tool_name: "Edit", tool_input: { content: "x" } }),
-  );
+  assert.ok(!isEditToolUseInput({ tool_name: "Edit", tool_input: { content: "x" } }));
   assert.ok(!isEditToolUseInput(null));
 });

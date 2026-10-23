@@ -24,9 +24,7 @@ export const run = async <Decision>(
   configUrl: URL,
 ): Promise<void> => {
   const input: unknown = JSON.parse(fs.readFileSync(0, "utf8"));
-  const { default: content }: { default: unknown } = await import(
-    configUrl.href
-  );
+  const { default: content }: { default: unknown } = await import(configUrl.href);
   const output = policy(adapter, input, { url: configUrl, content }, styleDeny);
   fs.writeFileSync(1, JSON.stringify(output));
 };

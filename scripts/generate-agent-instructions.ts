@@ -3,9 +3,7 @@ import { readdir, readFile, writeFile } from "node:fs/promises";
 const repositoryRoot = new URL("../", import.meta.url);
 const rulesDirectory = new URL(".agents/rules/", repositoryRoot);
 
-const ruleNames = (await readdir(rulesDirectory))
-  .filter((name) => name.endsWith(".md"))
-  .sort();
+const ruleNames = (await readdir(rulesDirectory)).filter((name) => name.endsWith(".md")).sort();
 const rules = await Promise.all(
   ruleNames.map((name) => readFile(new URL(name, rulesDirectory), "utf8")),
 );

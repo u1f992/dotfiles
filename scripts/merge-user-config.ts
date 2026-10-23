@@ -45,17 +45,10 @@ const readIfExists = async (file: string): Promise<string | undefined> => {
 const repositoryRoot = new URL("../", import.meta.url);
 const backupSuffix = `.${new Date().toISOString().replace(/[:.]/g, "-")}.bak`;
 
-const install = async (
-  templatePath: string,
-  target: string,
-  format: Format,
-): Promise<void> => {
-  const template = format.parse(
-    await readFile(new URL(templatePath, repositoryRoot), "utf8"),
-  );
+const install = async (templatePath: string, target: string, format: Format): Promise<void> => {
+  const template = format.parse(await readFile(new URL(templatePath, repositoryRoot), "utf8"));
   const existingText = await readIfExists(target);
-  const existing =
-    existingText === undefined ? undefined : format.parse(existingText);
+  const existing = existingText === undefined ? undefined : format.parse(existingText);
   const merged = format.stringify(merge(existing, template));
   if (existing !== undefined && merged === format.stringify(existing)) {
     console.log(`${target}: up to date`);
@@ -73,13 +66,5 @@ const install = async (
 
 const home = homedir();
 
-await install(
-  ".claude/settings.json",
-  path.join(home, ".claude", "settings.json"),
-  json,
-);
-await install(
-  ".codex/config.toml",
-  path.join(home, ".codex", "config.toml"),
-  toml,
-);
+await install(".claude/settings.json", path.join(home, ".claude", "settings.json"), json);
+await install(".codex/config.toml", path.join(home, ".codex", "config.toml"), toml);

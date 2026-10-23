@@ -4,11 +4,7 @@ import fs from "node:fs";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import type {
-  Decision,
-  PreToolUseDecision,
-  StopDecision,
-} from "../../../.claude/hooks/claude.ts";
+import type { Decision, PreToolUseDecision, StopDecision } from "../../../.claude/hooks/claude.ts";
 import bannedWords from "../../../.claude/hooks/banned-words.ts";
 import { adapter } from "../../../.claude/hooks/claude.ts";
 import { rejectWords } from "../../../.claude/hooks/policy/reject-words.ts";
@@ -51,25 +47,25 @@ const edit = (new_string: string, old_string = "old") => ({
   tool_input: { file_path: "/x.md", old_string, new_string },
 });
 
-test("登録語を含む応答をブロックし、該当語を理由に載せる", () => {
+void test("登録語を含む応答をブロックし、該当語を理由に載せる", () => {
   const decision = asStopDecision(run(stop("これはFooを含む")));
   assert.equal(decision.decision, "block");
   assert.ok(decision.reason?.includes("Foo"));
 });
 
-test("複数該当時はすべて理由に列挙する", () => {
+void test("複数該当時はすべて理由に列挙する", () => {
   const { reason } = asStopDecision(run(stop("Foo と bar baz")));
   for (const { patterns } of bans)
     for (const { source } of patterns) assert.ok(reason?.includes(source));
 });
 
 // 該当語だけでは何が悪いのか伝わらないので、登録側が書いたreasonを添える。
-test("該当語にreasonを添えて載せる", () => {
+void test("該当語にreasonを添えて載せる", () => {
   const { reason } = asStopDecision(run(stop("Foo")));
   assert.ok(reason?.includes("/Foo/i: Fooを禁じる理由"));
 });
 
-test("reasonを共有するpatternsのうち該当したものだけを載せる", () => {
+void test("reasonを共有するpatternsのうち該当したものだけを載せる", () => {
   const shared = [{ patterns: [/Foo/, /Bar/], reason: "r" }];
   const only = asStopDecision(run(stop("Foo"), shared));
   assert.ok(only.reason?.includes("/Foo/: r"));
@@ -80,60 +76,52 @@ test("reasonを共有するpatternsのうち該当したものだけを載せる
 
 // 語の言い換えで済むという誤読を招かないよう、禁止の対象が語ではなくフレーミングで
 // あることを拒否のたびに載せる。Stop と PreToolUse のどちらでも欠かせない。
-test("拒否の理由に言い換えでは直らない旨を載せる", () => {
+void test("拒否の理由に言い換えでは直らない旨を載せる", () => {
   const { reason } = asStopDecision(run(stop("Foo")));
   assert.ok(reason?.includes("Substituting synonyms"));
   const { hookSpecificOutput } = asPreToolUseDecision(run(write("Foo")));
-  assert.ok(
-    hookSpecificOutput.permissionDecisionReason?.includes(
-      "Substituting synonyms",
-    ),
-  );
+  assert.ok(hookSpecificOutput.permissionDecisionReason?.includes("Substituting synonyms"));
 });
 
-test("iフラグ付きの登録語は大文字小文字を無視して照合する", () => {
+void test("iフラグ付きの登録語は大文字小文字を無視して照合する", () => {
   assert.equal(asStopDecision(run(stop("これはfooを含む"))).decision, "block");
   assert.equal(asStopDecision(run(stop("これはFOOを含む"))).decision, "block");
 });
 
-test("iフラグの無い登録語は大文字小文字を区別する", () => {
+void test("iフラグの無い登録語は大文字小文字を区別する", () => {
   assert.deepEqual(run(stop("BAR BAZ")), {});
 });
 
-test("登録語はパターンとして照合する", () => {
+void test("登録語はパターンとして照合する", () => {
   const decision = asStopDecision(
     run(stop("fo0 bar"), [{ patterns: [/fo[0o] ?bar/], reason: "r" }]),
   );
   assert.equal(decision.decision, "block");
 });
 
-test("登録語が無ければ何も決めない", () => {
+void test("登録語が無ければ何も決めない", () => {
   assert.deepEqual(run(stop("hello world")), {});
 });
 
 // 禁止語を含んだまま停止される方が困るので、再発火でもブロックを続ける。
 // 際限なく続かない根拠はコア側のコメントを参照。
-test("再発火時（stop_hook_active=true）もブロックし続ける", () => {
+void test("再発火時（stop_hook_active=true）もブロックし続ける", () => {
   assert.equal(asStopDecision(run(stop("Foo", true))).decision, "block");
 });
 
-test("Writeのcontentに登録語を含むとdenyする", () => {
-  const { hookSpecificOutput } = asPreToolUseDecision(
-    run(write("冒頭 Foo 末尾")),
-  );
+void test("Writeのcontentに登録語を含むとdenyする", () => {
+  const { hookSpecificOutput } = asPreToolUseDecision(run(write("冒頭 Foo 末尾")));
   assert.equal(hookSpecificOutput.permissionDecision, "deny");
   assert.ok(hookSpecificOutput.permissionDecisionReason?.includes("Foo"));
 });
 
-test("Editのnew_stringに登録語を含むとdenyする", () => {
-  const { hookSpecificOutput } = asPreToolUseDecision(
-    run(edit("冒頭 Foo 末尾")),
-  );
+void test("Editのnew_stringに登録語を含むとdenyする", () => {
+  const { hookSpecificOutput } = asPreToolUseDecision(run(edit("冒頭 Foo 末尾")));
   assert.equal(hookSpecificOutput.permissionDecision, "deny");
   assert.ok(hookSpecificOutput.permissionDecisionReason?.includes("Foo"));
 });
 
-test("PreToolUse複数該当時はすべて理由に列挙する", () => {
+void test("PreToolUse複数該当時はすべて理由に列挙する", () => {
   const { hookSpecificOutput } = asPreToolUseDecision(
     run(write(bans.flatMap(({ patterns }) => patterns).join(" "))),
   );
@@ -142,31 +130,25 @@ test("PreToolUse複数該当時はすべて理由に列挙する", () => {
       assert.ok(hookSpecificOutput.permissionDecisionReason?.includes(source));
 });
 
-test("Editでold_stringのみに登録語がある場合は何も決めない", () => {
+void test("Editでold_stringのみに登録語がある場合は何も決めない", () => {
   assert.deepEqual(run(edit("clean", "Foo")), {});
 });
 
-test("Writeで登録語が無ければ何も決めない", () => {
+void test("Writeで登録語が無ければ何も決めない", () => {
   assert.deepEqual(run(write("hello world")), {});
 });
 
 // マッチャは Stop と Write|Edit に限定されており、対象外はそもそも届かない。
 // 万一届いても何も決めず素通りさせる。
-test("Write/Edit以外のツールは素通りする", () => {
-  assert.deepEqual(
-    run({ tool_name: "Read", tool_input: { file_path: "/x" } }),
-    {},
-  );
+void test("Write/Edit以外のツールは素通りする", () => {
+  assert.deepEqual(run({ tool_name: "Read", tool_input: { file_path: "/x" } }), {});
 });
 
-test("Writeでcontentを欠く入力は素通りする", () => {
-  assert.deepEqual(
-    run({ tool_name: "Write", tool_input: { file_path: "/x" } }),
-    {},
-  );
+void test("Writeでcontentを欠く入力は素通りする", () => {
+  assert.deepEqual(run({ tool_name: "Write", tool_input: { file_path: "/x" } }), {});
 });
 
-test("Editでnew_stringを欠く入力は素通りする", () => {
+void test("Editでnew_stringを欠く入力は素通りする", () => {
   assert.deepEqual(
     run({
       tool_name: "Edit",
@@ -176,17 +158,17 @@ test("Editでnew_stringを欠く入力は素通りする", () => {
   );
 });
 
-test("どのスキーマにも合致しない入力は素通りする", () => {
+void test("どのスキーマにも合致しない入力は素通りする", () => {
   assert.deepEqual(run({ foo: 1 }), {});
 });
 
-test("Stopの理由はstyleDenyを通す", () => {
+void test("Stopの理由はstyleDenyを通す", () => {
   const { reason } = asStopDecision(run(stop("Foo")));
   assert.ok(reason?.startsWith("<deny>"));
   assert.ok(reason?.endsWith("</deny>"));
 });
 
-test("PreToolUseの理由はstyleDenyを通す", () => {
+void test("PreToolUseの理由はstyleDenyを通す", () => {
   const { hookSpecificOutput } = asPreToolUseDecision(run(write("Foo")));
   const { permissionDecisionReason } = hookSpecificOutput;
   assert.ok(permissionDecisionReason?.startsWith("<deny>"));
@@ -195,7 +177,7 @@ test("PreToolUseの理由はstyleDenyを通す", () => {
 
 // 診断はstyleDenyを通さない。拒否ではなく設定ファイルの不備の通知なので、
 // 装飾の対象が違う。
-test("systemMessageはstyleDenyを通さない", () => {
+void test("systemMessageはstyleDenyを通さない", () => {
   const decision = run(stop("hello"), { Foo: true });
   assert.ok(!decision.systemMessage?.includes("<deny>"));
 });
@@ -212,42 +194,38 @@ const assertInvalidFormat = (decision: Decision) => {
   assert.ok(decision.systemMessage?.includes("/hooks/banned-words.ts"));
 };
 
-test("登録語の一覧が配列でなければ形式の誤りを知らせる", () => {
+void test("登録語の一覧が配列でなければ形式の誤りを知らせる", () => {
   assertInvalidFormat(run(stop("hello"), { Foo: true }));
 });
 
-test("string[]の旧形式は形式の誤りを知らせる", () => {
+void test("string[]の旧形式は形式の誤りを知らせる", () => {
   assertInvalidFormat(run(stop("hello"), ["Foo"]));
 });
 
-test("patternsキーを欠く要素があれば形式の誤りを知らせる", () => {
+void test("patternsキーを欠く要素があれば形式の誤りを知らせる", () => {
   assertInvalidFormat(run(stop("hello"), [{ reason: "" }]));
 });
 
-test("patternsが単一のRegExpの要素があれば形式の誤りを知らせる", () => {
+void test("patternsが単一のRegExpの要素があれば形式の誤りを知らせる", () => {
   assertInvalidFormat(run(stop("hello"), [{ patterns: /Foo/, reason: "" }]));
 });
 
-test("patternsが空の要素があれば形式の誤りを知らせる", () => {
+void test("patternsが空の要素があれば形式の誤りを知らせる", () => {
   assertInvalidFormat(run(stop("hello"), [{ patterns: [], reason: "" }]));
 });
 
-test("patternsに文字列を含む要素があれば形式の誤りを知らせる", () => {
-  assertInvalidFormat(
-    run(stop("hello"), [{ patterns: [/Foo/, "Bar"], reason: "" }]),
-  );
+void test("patternsに文字列を含む要素があれば形式の誤りを知らせる", () => {
+  assertInvalidFormat(run(stop("hello"), [{ patterns: [/Foo/, "Bar"], reason: "" }]));
 });
 
-test("reasonキーを欠く要素があれば形式の誤りを知らせる", () => {
+void test("reasonキーを欠く要素があれば形式の誤りを知らせる", () => {
   assertInvalidFormat(run(stop("hello"), [{ patterns: [/Foo/] }]));
 });
 
-const hooksDir = fileURLToPath(
-  new URL("../../../.claude/hooks/", import.meta.url),
-);
+const hooksDir = fileURLToPath(new URL("../../../.claude/hooks/", import.meta.url));
 const hookPath = `${hooksDir}reject-words.ts`;
 
-test("配置済みの登録語一覧は{ patterns, reason }の配列になっている", () => {
+void test("配置済みの登録語一覧は{ patterns, reason }の配列になっている", () => {
   const parsed: unknown = bannedWords;
   assert.ok(Array.isArray(parsed));
   for (const entry of parsed) {
@@ -260,13 +238,13 @@ test("配置済みの登録語一覧は{ patterns, reason }の配列になって
 
 // Claude Codeはフックをコマンドとして直接起動するので、実行ビットが無いとEACCESで
 // 落ちる。コアを直接呼ぶテストではこの不備が現れない。
-test("フックに実行権限がある", () => {
+void test("フックに実行権限がある", () => {
   fs.accessSync(hookPath, fs.constants.X_OK);
 });
 
 // エントリポイントが担うのは stdin とファイルの読み込み、stdout への書き出しだけ。
 // 判定そのものは上のAPIテストが見るので、ここでは結線だけを確かめる。
-test("エントリポイントはstdinを読んでstdoutに決定を書く", () => {
+void test("エントリポイントはstdinを読んでstdoutに決定を書く", () => {
   const literal = bannedWords
     .flatMap(({ patterns }) => patterns)
     .find((pattern) => pattern.test(pattern.source));

@@ -15,8 +15,7 @@ const isBan = (x: unknown): x is Ban =>
   "reason" in x &&
   typeof x.reason === "string";
 
-const isBanArray = (x: unknown): x is Ban[] =>
-  Array.isArray(x) && x.every(isBan);
+const isBanArray = (x: unknown): x is Ban[] => Array.isArray(x) && x.every(isBan);
 
 const findViolations = (text: string, bans: readonly Ban[]): Violation[] =>
   bans.flatMap(({ patterns, reason }) => {
@@ -25,9 +24,7 @@ const findViolations = (text: string, bans: readonly Ban[]): Violation[] =>
   });
 
 const formatViolations = (violations: readonly Violation[]) =>
-  violations
-    .map(({ matched, reason }) => `  - ${matched.join(", ")}: ${reason}`)
-    .join("\n");
+  violations.map(({ matched, reason }) => `  - ${matched.join(", ")}: ${reason}`).join("\n");
 
 const framingNotice =
   "These words are symptoms. What is banned is the framing that produces them: " +
@@ -65,9 +62,7 @@ export const rejectWords = <Decision>(
     const content = edit.content(input);
     if (content === undefined) continue;
     const violations = findViolations(content, source.content);
-    return violations.length > 0
-      ? edit.deny(styleDeny(editReason(violations)))
-      : adapter.allow();
+    return violations.length > 0 ? edit.deny(styleDeny(editReason(violations))) : adapter.allow();
   }
 
   return adapter.allow();

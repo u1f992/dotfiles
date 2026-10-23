@@ -141,19 +141,16 @@ export const adapter: HookAdapter<Decision> = {
   allow: () => ({}),
   warn: (systemMessage) => ({ systemMessage }),
   stop: {
-    message: (input) =>
-      isStopHookInput(input) ? input.last_assistant_message : undefined,
+    message: (input) => (isStopHookInput(input) ? input.last_assistant_message : undefined),
     block: (reason) => ({ decision: "block", reason }),
   },
   edits: [
     {
-      content: (input) =>
-        isWriteToolUseInput(input) ? input.tool_input.content : undefined,
+      content: (input) => (isWriteToolUseInput(input) ? input.tool_input.content : undefined),
       deny: denyEdit,
     },
     {
-      content: (input) =>
-        isEditToolUseInput(input) ? input.tool_input.new_string : undefined,
+      content: (input) => (isEditToolUseInput(input) ? input.tool_input.new_string : undefined),
       deny: denyEdit,
     },
   ],
