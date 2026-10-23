@@ -127,10 +127,10 @@ Shared hook data and host-independent policy code have one canonical copy under 
 │   ├── cli.ts
 │   ├── hook-adapter.ts
 │   └── reject-words.ts
-└── reject-words.local.json
+└── banned-words.local.ts
 ```
 
-Claude and Codex keep only their host-specific hook schema and `HookAdapter` in `.claude/hooks/claude.local.ts` and `.codex/hooks/codex.local.ts`. Their `policy.local/` directories and JSON files are relative symlinks to `.agents/hooks/`. The executable entry points only connect an adapter, a policy, and its JSON file; stdin/stdout handling lives in the shared `cli.ts`.
+`banned-words.local.ts` exports the banned word list as its default export, typed as `Ban[]` from `policy.local/reject-words.ts`. Each entry pairs one or more `RegExp` patterns with the reason shown on rejection; the policy searches the checked text with each pattern as written, so case sensitivity is decided per pattern by its flags, and a rejection lists the patterns that matched next to their shared reason. Claude and Codex keep only their host-specific hook schema and `HookAdapter` in `.claude/hooks/claude.local.ts` and `.codex/hooks/codex.local.ts`. Their `policy.local/` directories and `banned-words.local.ts` are relative symlinks to `.agents/hooks/`. The executable entry points only connect an adapter, a policy, and the word list module; stdin/stdout handling and the dynamic import of that module live in the shared `cli.ts`.
 
 Each host registers `reject-words.local.ts` for both the Stop and PreToolUse events; the policy checks the final assistant message on Stop and the content to be written on PreToolUse. Codex's edit adapter extracts only added lines from an `apply_patch` command, so deleted and unchanged context do not trigger the banned-word policy.
 

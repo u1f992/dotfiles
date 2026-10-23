@@ -4,6 +4,7 @@ import fs from "node:fs";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import bannedWords from "../../../.codex/hooks/banned-words.local.ts";
 import {
   adapter,
   extractAddedContent,
@@ -59,13 +60,13 @@ test("apply_patchから追加行だけを抽出する", () => {
   assert.equal(extractAddedContent(patch), "added\nsecond");
 });
 
-const banned = [{ word: "forbidden", reason: "test" }];
-const bannedUrl = new URL("file:///hooks/reject-words.local.json");
+const bans = [{ patterns: [/forbidden/], reason: "test" }];
+const bannedUrl = new URL("file:///hooks/banned-words.local.ts");
 const checkPatch = (command: string) =>
   rejectWords(
     adapter,
     applyPatch(command),
-    { url: bannedUrl, content: banned },
+    { url: bannedUrl, content: bans },
     (text) => text,
   );
 
@@ -91,12 +92,17 @@ const hooksDir = fileURLToPath(
 test("Stopエントリポイントが禁止語を拒否する", () => {
   const hookPath = `${hooksDir}reject-words.local.ts`;
   fs.accessSync(hookPath, fs.constants.X_OK);
+  const literal = bannedWords
+    .flatMap(({ patterns }) => patterns)
+    .find((pattern) => pattern.test(pattern.source));
+  assert.ok(literal);
+  const { source } = literal;
   const result = spawnSync(process.execPath, [hookPath], {
-    input: JSON.stringify(stop("ご希望なら")),
+    input: JSON.stringify(stop(source)),
     encoding: "utf8",
   });
   assert.equal(result.status, 0);
   const decision: StopDecision = JSON.parse(result.stdout);
   assert.equal(decision.decision, "block");
-  assert.ok(decision.reason?.includes("ご希望なら"));
+  assert.ok(decision.reason?.includes(source));
 });

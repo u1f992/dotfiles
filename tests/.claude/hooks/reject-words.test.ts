@@ -9,6 +9,7 @@ import type {
   PreToolUseDecision,
   StopDecision,
 } from "../../../.claude/hooks/claude.local.ts";
+import bannedWords from "../../../.claude/hooks/banned-words.local.ts";
 import { adapter } from "../../../.claude/hooks/claude.local.ts";
 import { rejectWords } from "../../../.claude/hooks/policy.local/reject-words.ts";
 
@@ -25,17 +26,17 @@ const asPreToolUseDecision = (decision: Decision): PreToolUseDecision => {
 
 // 実ファイルではなく固定のリストを使う。実ファイルの中身が変わってもテストが
 // 揺れないようにし、大文字小文字や空白入りの語も含めて照合を確かめる。
-const banned = [
-  { word: "Foo", reason: "Fooを禁じる理由" },
-  { word: "bar baz", reason: "bar bazを禁じる理由" },
+const bans = [
+  { patterns: [/Foo/i], reason: "Fooを禁じる理由" },
+  { patterns: [/bar baz/], reason: "bar bazを禁じる理由" },
 ];
-const bannedUrl = new URL("file:///hooks/reject-words.local.json");
+const bannedUrl = new URL("file:///hooks/banned-words.local.ts");
 
 // 着色はエントリポイントの持ち物なので、コアには印を渡して適用の有無だけを見る。
 const styleDeny = (text: string) => `<deny>${text}</deny>`;
 
-const run = (input: unknown, words: unknown = banned) =>
-  rejectWords(adapter, input, { url: bannedUrl, content: words }, styleDeny);
+const run = (input: unknown, content: unknown = bans) =>
+  rejectWords(adapter, input, { url: bannedUrl, content }, styleDeny);
 
 const stop = (last_assistant_message: string, stop_hook_active = false) => ({
   stop_hook_active,
@@ -58,13 +59,23 @@ test("登録語を含む応答をブロックし、該当語を理由に載せ�
 
 test("複数該当時はすべて理由に列挙する", () => {
   const { reason } = asStopDecision(run(stop("Foo と bar baz")));
-  for (const { word } of banned) assert.ok(reason?.includes(word));
+  for (const { patterns } of bans)
+    for (const { source } of patterns) assert.ok(reason?.includes(source));
 });
 
 // 該当語だけでは何が悪いのか伝わらないので、登録側が書いたreasonを添える。
 test("該当語にreasonを添えて載せる", () => {
   const { reason } = asStopDecision(run(stop("Foo")));
-  assert.ok(reason?.includes("Foo: Fooを禁じる理由"));
+  assert.ok(reason?.includes("/Foo/i: Fooを禁じる理由"));
+});
+
+test("reasonを共有するpatternsのうち該当したものだけを載せる", () => {
+  const shared = [{ patterns: [/Foo/, /Bar/], reason: "r" }];
+  const only = asStopDecision(run(stop("Foo"), shared));
+  assert.ok(only.reason?.includes("/Foo/: r"));
+  assert.ok(!only.reason?.includes("/Bar/"));
+  const both = asStopDecision(run(stop("Foo Bar"), shared));
+  assert.ok(both.reason?.includes("/Foo/, /Bar/: r"));
 });
 
 // 語の言い換えで済むという誤読を招かないよう、禁止の対象が語ではなくフレーミングで
@@ -80,9 +91,20 @@ test("拒否の理由に言い換えでは直らない旨を載せる", () => {
   );
 });
 
-test("大文字小文字を無視して照合する", () => {
+test("iフラグ付きの登録語は大文字小文字を無視して照合する", () => {
   assert.equal(asStopDecision(run(stop("これはfooを含む"))).decision, "block");
   assert.equal(asStopDecision(run(stop("これはFOOを含む"))).decision, "block");
+});
+
+test("iフラグの無い登録語は大文字小文字を区別する", () => {
+  assert.deepEqual(run(stop("BAR BAZ")), {});
+});
+
+test("登録語はパターンとして照合する", () => {
+  const decision = asStopDecision(
+    run(stop("fo0 bar"), [{ patterns: [/fo[0o] ?bar/], reason: "r" }]),
+  );
+  assert.equal(decision.decision, "block");
 });
 
 test("登録語が無ければ何も決めない", () => {
@@ -113,10 +135,11 @@ test("Editのnew_stringに登録語を含むとdenyする", () => {
 
 test("PreToolUse複数該当時はすべて理由に列挙する", () => {
   const { hookSpecificOutput } = asPreToolUseDecision(
-    run(write(banned.map(({ word }) => word).join(" "))),
+    run(write(bans.flatMap(({ patterns }) => patterns).join(" "))),
   );
-  for (const { word } of banned)
-    assert.ok(hookSpecificOutput.permissionDecisionReason?.includes(word));
+  for (const { patterns } of bans)
+    for (const { source } of patterns)
+      assert.ok(hookSpecificOutput.permissionDecisionReason?.includes(source));
 });
 
 test("Editでold_stringのみに登録語がある場合は何も決めない", () => {
@@ -184,9 +207,9 @@ const assertInvalidFormat = (decision: Decision) => {
   assert.equal(asStopDecision(decision).decision, undefined);
   assert.match(
     decision.systemMessage ?? "",
-    /must be a JSON array of \{ word: string, reason: string \}/,
+    /must export default an array of \{ patterns: \[RegExp, \.\.\.RegExp\[\]\], reason: string \}/,
   );
-  assert.ok(decision.systemMessage?.includes("/hooks/reject-words.local.json"));
+  assert.ok(decision.systemMessage?.includes("/hooks/banned-words.local.ts"));
 };
 
 test("登録語の一覧が配列でなければ形式の誤りを知らせる", () => {
@@ -197,12 +220,26 @@ test("string[]の旧形式は形式の誤りを知らせる", () => {
   assertInvalidFormat(run(stop("hello"), ["Foo"]));
 });
 
-test("wordキーを欠く要素があれば形式の誤りを知らせる", () => {
+test("patternsキーを欠く要素があれば形式の誤りを知らせる", () => {
   assertInvalidFormat(run(stop("hello"), [{ reason: "" }]));
 });
 
+test("patternsが単一のRegExpの要素があれば形式の誤りを知らせる", () => {
+  assertInvalidFormat(run(stop("hello"), [{ patterns: /Foo/, reason: "" }]));
+});
+
+test("patternsが空の要素があれば形式の誤りを知らせる", () => {
+  assertInvalidFormat(run(stop("hello"), [{ patterns: [], reason: "" }]));
+});
+
+test("patternsに文字列を含む要素があれば形式の誤りを知らせる", () => {
+  assertInvalidFormat(
+    run(stop("hello"), [{ patterns: [/Foo/, "Bar"], reason: "" }]),
+  );
+});
+
 test("reasonキーを欠く要素があれば形式の誤りを知らせる", () => {
-  assertInvalidFormat(run(stop("hello"), [{ word: "Foo" }]));
+  assertInvalidFormat(run(stop("hello"), [{ patterns: [/Foo/] }]));
 });
 
 const hooksDir = fileURLToPath(
@@ -210,13 +247,13 @@ const hooksDir = fileURLToPath(
 );
 const hookPath = `${hooksDir}reject-words.local.ts`;
 
-test("配置済みの登録語一覧は{ word, reason }の配列になっている", () => {
-  const raw = fs.readFileSync(`${hooksDir}reject-words.local.json`, "utf8");
-  const parsed: unknown = JSON.parse(raw);
+test("配置済みの登録語一覧は{ patterns, reason }の配列になっている", () => {
+  const parsed: unknown = bannedWords;
   assert.ok(Array.isArray(parsed));
   for (const entry of parsed) {
-    assert.equal(typeof entry.word, "string");
-    assert.ok(entry.word.length > 0);
+    assert.ok(Array.isArray(entry.patterns));
+    assert.ok(entry.patterns.length > 0);
+    for (const pattern of entry.patterns) assert.ok(pattern instanceof RegExp);
     assert.equal(typeof entry.reason, "string");
   }
 });
@@ -230,20 +267,19 @@ test("フックに実行権限がある", () => {
 // エントリポイントが担うのは stdin とファイルの読み込み、stdout への書き出しだけ。
 // 判定そのものは上のAPIテストが見るので、ここでは結線だけを確かめる。
 test("エントリポイントはstdinを読んでstdoutに決定を書く", () => {
-  const realBanned: { word: string; reason: string }[] = JSON.parse(
-    fs.readFileSync(`${hooksDir}reject-words.local.json`, "utf8"),
-  );
-  const [entry] = realBanned;
-  assert.ok(entry);
-  const { word } = entry;
+  const literal = bannedWords
+    .flatMap(({ patterns }) => patterns)
+    .find((pattern) => pattern.test(pattern.source));
+  assert.ok(literal);
+  const { source } = literal;
   const res = spawnSync(process.execPath, [hookPath], {
-    input: JSON.stringify(stop(`前 ${word} 後`)),
+    input: JSON.stringify(stop(`前 ${source} 後`)),
     encoding: "utf8",
   });
   assert.equal(res.status, 0);
   const decision = JSON.parse(res.stdout);
   assert.equal(decision.decision, "block");
-  assert.ok(decision.reason.includes(word));
+  assert.ok(decision.reason.includes(source));
   // 着色を渡しているのはエントリポイントなので、ANSIはここでしか確かめられない。
   assert.ok(decision.reason.includes("\x1b[31m"));
   assert.ok(decision.reason.includes("\x1b[39m"));

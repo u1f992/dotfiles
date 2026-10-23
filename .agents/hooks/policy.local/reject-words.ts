@@ -1,23 +1,33 @@
 import type { HookAdapter } from "./hook-adapter.ts";
 
-type BannedWord = { word: string; reason: string };
+export type Ban = { patterns: [RegExp, ...RegExp[]]; reason: string };
 
-const isBannedWord = (x: unknown): x is BannedWord =>
+type Violation = { matched: readonly RegExp[]; reason: string };
+
+const isPatterns = (x: unknown): x is Ban["patterns"] =>
+  Array.isArray(x) && x.length > 0 && x.every((p) => p instanceof RegExp);
+
+const isBan = (x: unknown): x is Ban =>
   typeof x === "object" &&
   x !== null &&
-  "word" in x &&
-  typeof x.word === "string" &&
+  "patterns" in x &&
+  isPatterns(x.patterns) &&
   "reason" in x &&
   typeof x.reason === "string";
 
-const isBannedWordArray = (x: unknown): x is BannedWord[] =>
-  Array.isArray(x) && x.every(isBannedWord);
+const isBanArray = (x: unknown): x is Ban[] =>
+  Array.isArray(x) && x.every(isBan);
 
-const findBanned = (text: string, words: readonly BannedWord[]) =>
-  words.filter(({ word }) => text.toLowerCase().includes(word.toLowerCase()));
+const findViolations = (text: string, bans: readonly Ban[]): Violation[] =>
+  bans.flatMap(({ patterns, reason }) => {
+    const matched = patterns.filter((pattern) => text.search(pattern) !== -1);
+    return matched.length > 0 ? [{ matched, reason }] : [];
+  });
 
-const formatFound = (found: readonly BannedWord[]) =>
-  found.map(({ word, reason }) => `  - ${word}: ${reason}`).join("\n");
+const formatViolations = (violations: readonly Violation[]) =>
+  violations
+    .map(({ matched, reason }) => `  - ${matched.join(", ")}: ${reason}`)
+    .join("\n");
 
 const framingNotice =
   "These words are symptoms. What is banned is the framing that produces them: " +
@@ -25,38 +35,38 @@ const framingNotice =
   "Substituting synonyms leaves the response just as wrong. " +
   "Rebuild it from what was actually asked.";
 
-const stopReason = (found: readonly BannedWord[]) =>
-  `The response resorts to banned expressions:\n${formatFound(found)}\n${framingNotice}\n`;
+const stopReason = (violations: readonly Violation[]) =>
+  `The response resorts to banned expressions:\n${formatViolations(violations)}\n${framingNotice}\n`;
 
-const editReason = (found: readonly BannedWord[]) =>
-  `The content to write resorts to banned expressions:\n${formatFound(found)}\n${framingNotice}\n`;
+const editReason = (violations: readonly Violation[]) =>
+  `The content to write resorts to banned expressions:\n${formatViolations(violations)}\n${framingNotice}\n`;
 
 export const rejectWords = <Decision>(
   adapter: HookAdapter<Decision>,
   input: unknown,
-  banned: { url: URL; content: unknown },
+  source: { url: URL; content: unknown },
   styleDeny: (text: string) => string,
 ): Decision => {
-  if (!isBannedWordArray(banned.content)) {
+  if (!isBanArray(source.content)) {
     return adapter.warn(
-      `${banned.url.pathname} must be a JSON array of { word: string, reason: string }`,
+      `${source.url.pathname} must export default an array of { patterns: [RegExp, ...RegExp[]], reason: string }`,
     );
   }
 
   const message = adapter.stop.message(input);
   if (message !== undefined) {
-    const found = findBanned(message, banned.content);
-    return found.length > 0
-      ? adapter.stop.block(styleDeny(stopReason(found)))
+    const violations = findViolations(message, source.content);
+    return violations.length > 0
+      ? adapter.stop.block(styleDeny(stopReason(violations)))
       : adapter.allow();
   }
 
   for (const edit of adapter.edits) {
     const content = edit.content(input);
     if (content === undefined) continue;
-    const found = findBanned(content, banned.content);
-    return found.length > 0
-      ? edit.deny(styleDeny(editReason(found)))
+    const violations = findViolations(content, source.content);
+    return violations.length > 0
+      ? edit.deny(styleDeny(editReason(violations)))
       : adapter.allow();
   }
 

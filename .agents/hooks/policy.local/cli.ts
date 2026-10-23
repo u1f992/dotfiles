@@ -18,13 +18,15 @@ const styleDeny = (text: string) =>
     { validateStream: false },
   );
 
-export const run = <Decision>(
+export const run = async <Decision>(
   adapter: HookAdapter<Decision>,
   policy: Policy<Decision>,
   configUrl: URL,
-): void => {
+): Promise<void> => {
   const input: unknown = JSON.parse(fs.readFileSync(0, "utf8"));
-  const content: unknown = JSON.parse(fs.readFileSync(configUrl, "utf8"));
+  const { default: content }: { default: unknown } = await import(
+    configUrl.href
+  );
   const output = policy(adapter, input, { url: configUrl, content }, styleDeny);
   fs.writeFileSync(1, JSON.stringify(output));
 };
