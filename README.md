@@ -72,12 +72,7 @@ Codex reads `~/.codex/AGENTS.md` before the project's `AGENTS.md` files. `npm ru
 
 ### Skills
 
-The third-party skills under `.agents/skills/` are git submodules pinned to the revision recorded in this repository. `link.sh` initializes them. `git submodule status` shows the pinned revisions.
-
-| Directory | Upstream |
-| --- | --- |
-| .agents/skills/humanizer | [blader/humanizer](https://github.com/blader/humanizer) (MIT license) |
-| .agents/skills/cognitive-rhythm-writing | [k16shikano/eb2929f13ed19c97188393d297be8432](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432) ([Unlicense](https://gist.github.com/k16shikano/67625f2a7d96e3bbdfae8d571a936063)) |
+The third-party skills under `.agents/skills/` are git submodules, and `link.sh` initializes them.
 
 `.agents/skills/japanese-tech-writing` is a vendored copy of [k16shikano/fd287c3133457c4fd8f5601d34aa817d](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d)@[8f2d576](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d/8f2d57610a73efc97d743c9b0b0ecb1002e09fa4) ([Unlicense](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d?permalink_comment_id=6210840#gistcomment-6210840)) with the paragraph formatting and Japanese/Latin spacing rules in [`SKILL.md.diff`](.agents/skills/japanese-tech-writing/SKILL.md.diff) applied. To compare it with upstream, apply the patch to the upstream checkout first, and re-apply it after any future upstream bump:
 
