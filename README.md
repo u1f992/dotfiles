@@ -16,6 +16,7 @@ $ npm test
 
 ```text
 home/
+├── .chezmoi.toml.tmpl     rendered into ~/.config/chezmoi/chezmoi.toml by chezmoi init
 ├── dot_agents/
 │   ├── hooks/             shared hook policy and the banned word list
 │   ├── exact_rules/       shared rules, one topic per file
@@ -23,7 +24,7 @@ home/
 ├── dot_claude/
 │   ├── hooks/             Claude Code hook entry point and adapter
 │   ├── skills/            one symlink per shared skill
-│   ├── modify_settings.json
+│   ├── modify_settings.json.ts
 │   └── symlink_rules
 └── dot_codex/
     ├── AGENTS.md.tmpl     concatenates dot_agents/exact_rules/*.md
@@ -49,4 +50,4 @@ To remove a rule, delete its file from `exact_rules/`. To remove a skill, delete
 
 Under each agent's `hooks/`, `banned-words.ts` and the files in `policy/` are symlinks into `dot_agents/hooks/`. Edit the shared policy there, and the next `chezmoi apply` updates both `~/.claude/hooks/` and `~/.codex/hooks/`.
 
-`modify_settings.json` merges its settings into `~/.claude/settings.json`. Keys that exist only in the home file are kept, and `chezmoi diff` shows the result before `chezmoi apply` writes it.
+`modify_settings.json.ts` merges its settings into `~/.claude/settings.json`; `.chezmoi.toml.tmpl` registers node as the interpreter that runs it. Keys that exist only in the home file are kept, and `chezmoi diff` shows the result before `chezmoi apply` writes it. An apply that changes the file first saves the previous content next to it as `settings.json.<timestamp>.orig`.
