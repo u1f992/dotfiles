@@ -58,12 +58,6 @@ Claude Code loads `~/.claude/rules/*.md` in every project.
 
 Public mentions: [kawasin73's post](https://kawasin73.hatenablog.com/entry/2026/09/05/092056) (2026-09-05), [anthropics/claude-code#92271](https://github.com/anthropics/claude-code/issues/92271), and the comments on #90450 that [introduce the variable](https://github.com/anthropics/claude-code/issues/90450#issuecomment-5551944607) and [verify it through the `auto_mode` transcript attachment](https://github.com/anthropics/claude-code/issues/90450#issuecomment-5552521491).
 
-> To share project instructions between coding agents, a relative symlink from `CLAUDE.md` to `AGENTS.md` is recommended:
->
-> ```shellsession
-> $ ln -s AGENTS.md CLAUDE.md
-> ```
-
 ### Codex
 
 Codex reads `~/.codex/AGENTS.md` before the project's `AGENTS.md` files. `link.sh` generates `.codex/AGENTS.md` from the rules under `.agents/rules/`.
