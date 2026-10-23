@@ -14,6 +14,7 @@ for skill in ~/dotfiles/.agents/skills/*/; do
   ln -sfn "${skill%/}" ~/.claude/skills/
 done
 ln -sfn ~/dotfiles/.agents/skills ~/.agents/skills
+node ~/dotfiles/scripts/generate-agent-instructions.ts
 ln -sfn ~/dotfiles/.codex/AGENTS.md ~/.codex/AGENTS.md
 ln -sfn ~/dotfiles/.codex/hooks ~/.codex/hooks
 ln -sfn ~/dotfiles/.codex/hooks.json ~/.codex/hooks.json
