@@ -37,6 +37,8 @@ When a prospective comment is rejected because the code can carry the explanatio
 
 Comments addressing complexity imposed from outside, such as by an OS, a DB, a browser, an SDK, a protocol, or a standard specification, are permitted. Because "comments explaining an absence" is itself prohibited, this exception is limited to complexity that is present in the code. Put another way, it applies when deleting the comment would leave the reader of the code in front of them asking "why is this doing something so unnatural?". Even when the cause is external, explanations of what is not being done, justifications of design decisions, and notices addressed to future readers are excluded.
 
+Documentation comments on public APIs are permitted. Public here does not mean only the public API of a package. It covers public members of a class, exported functions of a module, and in short any declaration whose documentation an IDE shows at a distant context, such as a call site in another file, through hover or completion. The premise of this rule is that the reader has the implementation in front of them, and that premise does not hold for such a reader. Write the documentation comment as the contract seen from the caller: what the declaration does, what its parameters and return value mean, and what errors it raises. The prohibited categories above still apply inside documentation comments.
+
 Comments added on the user's explicit instruction are an exception. Once added, such a comment remains part of the user's requirements and must not be removed unless the user explicitly requests its removal.
 
 ## Keep task context out of documentation
