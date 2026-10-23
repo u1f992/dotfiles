@@ -40,6 +40,4 @@ $ ./link.sh
 | `~/.codex/hooks.json` | `.codex/hooks.json` |
 | `~/.codex/rules/no-external-operations.rules` | `.codex/rules/no-external-operations.rules` |
 
-`~/.claude/skills` itself stays a regular directory because Claude Code keeps the skills synced from claude.ai under `~/.claude/skills/synced/`.
-
 `link.sh` merges `.claude/settings.json` into `~/.claude/settings.json` and `.codex/config.toml` into `~/.codex/config.toml`. Before a home file changes, its previous content is saved next to it as `<file>.<timestamp>.bak`. Run `link.sh` again after editing either file in this repository.
