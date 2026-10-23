@@ -18,10 +18,6 @@ set clipboard=unnamedplus,unnamed,autoselect
 set autoread
 autocmd FocusGained,BufEnter * checktime
 
-" Despacio
-" https://github.com/AlessandroYorba/Despacio
-colorscheme despacio
-
 " For Windows Terminal
 " https://github.com/microsoft/terminal/issues/832
 set termguicolors
