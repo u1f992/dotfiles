@@ -1,4 +1,4 @@
-# Equivalent to Claude Code's bypassPermissions mode for this trusted project.
+# Equivalent to Claude Code's bypassPermissions mode.
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 model_reasoning_effort = "medium"
