@@ -8,10 +8,10 @@ import type {
   Decision,
   PreToolUseDecision,
   StopDecision,
-} from "../../../../home/dot_claude/hooks/claude.ts";
-import bannedWords from "../../../../home/dot_claude/hooks/banned-words.ts";
-import { adapter } from "../../../../home/dot_claude/hooks/claude.ts";
-import { rejectWords } from "../../../../home/dot_claude/hooks/policy/reject-words.ts";
+} from "../home/dot_claude/hooks/claude.ts";
+import bannedWords from "../home/dot_claude/hooks/banned-words.ts";
+import { adapter } from "../home/dot_claude/hooks/claude.ts";
+import { rejectWords } from "../home/dot_claude/hooks/policy/reject-words.ts";
 
 // `Decision`はユニオンなので、片方の枝にしかないプロパティは直接読めない。
 // 期待したイベントの決定が返っていることをassertしたうえで絞り込む。
@@ -226,7 +226,7 @@ void test("reasonキーを欠く要素があれば形式の誤りを知らせる
   assertInvalidFormat(run(stop("hello"), [{ patterns: [/Foo/] }]));
 });
 
-const hooksDir = fileURLToPath(new URL("../../../../home/dot_claude/hooks/", import.meta.url));
+const hooksDir = fileURLToPath(new URL("../home/dot_claude/hooks/", import.meta.url));
 const hookPath = `${hooksDir}executable_reject-words.ts`;
 
 void test("配置済みの登録語一覧は{ patterns, reason }の配列になっている", () => {

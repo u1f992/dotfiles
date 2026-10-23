@@ -4,15 +4,15 @@ import fs from "node:fs";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import bannedWords from "../../../../home/dot_codex/hooks/banned-words.ts";
+import bannedWords from "../home/dot_codex/hooks/banned-words.ts";
 import {
   adapter,
   extractAddedContent,
   isApplyPatchToolUseInput,
   isStopHookInput,
   type StopDecision,
-} from "../../../../home/dot_codex/hooks/codex.ts";
-import { rejectWords } from "../../../../home/dot_codex/hooks/policy/reject-words.ts";
+} from "../home/dot_codex/hooks/codex.ts";
+import { rejectWords } from "../home/dot_codex/hooks/policy/reject-words.ts";
 
 const common = {
   session_id: "session",
@@ -78,7 +78,7 @@ void test("削除行と文脈行の禁止語は拒否しない", () => {
   assert.deepEqual(decision, {});
 });
 
-const hooksDir = fileURLToPath(new URL("../../../../home/dot_codex/hooks/", import.meta.url));
+const hooksDir = fileURLToPath(new URL("../home/dot_codex/hooks/", import.meta.url));
 
 void test("Stopエントリポイントが禁止語を拒否する", () => {
   const hookPath = `${hooksDir}executable_reject-words.ts`;
