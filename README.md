@@ -29,7 +29,6 @@ home/
     ├── AGENTS.md.tmpl     concatenates dot_agents/exact_rules/*.md
     ├── hooks/
     ├── hooks.json
-    ├── modify_private_config.toml
     └── rules/
 ```
 
@@ -50,4 +49,4 @@ To remove a rule, delete its file from `exact_rules/`. To remove a skill, delete
 
 Under each agent's `hooks/`, `banned-words.ts` and the files in `policy/` are symlinks into `dot_agents/hooks/`. Edit the shared policy there, and the next `chezmoi apply` updates both `~/.claude/hooks/` and `~/.codex/hooks/`.
 
-`modify_settings.json` merges its settings into `~/.claude/settings.json`, and `modify_private_config.toml` merges its tables into `~/.codex/config.toml`. Keys that exist only in the home file are kept, and `chezmoi diff` shows the result before `chezmoi apply` writes it.
+`modify_settings.json` merges its settings into `~/.claude/settings.json`. Keys that exist only in the home file are kept, and `chezmoi diff` shows the result before `chezmoi apply` writes it.
