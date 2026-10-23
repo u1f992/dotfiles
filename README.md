@@ -15,7 +15,7 @@ $ ./link.sh
 
 ## Coding agents
 
-`.agents/`, `.claude/`, and `.codex/` hold the personal configuration for Claude Code and Codex, and `link.sh` deploys them into the home directory so that every project on the machine picks them up.
+`.agents/`, `.claude/`, and `.codex/` hold the personal configuration for Claude Code and Codex.
 
 ```text
 .agents/
