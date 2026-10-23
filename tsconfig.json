@@ -45,5 +45,4 @@
     "noEmit": true,
     "rewriteRelativeImportExtensions": true,
   },
-  "include": ["**/*", "**/.*", "**/.*/**/*"]
 }

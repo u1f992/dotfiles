@@ -1,1 +1,0 @@
-../../../.agents/hooks/policy/hook-adapter.ts

@@ -1,0 +1,5 @@
+{{- $rules := list -}}
+{{- range glob (joinPath .chezmoi.sourceDir "dot_agents/exact_rules/*.md") -}}
+{{- $rules = append $rules (include . | trim) -}}
+{{- end -}}
+{{ join "\n\n" $rules }}
