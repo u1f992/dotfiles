@@ -1,0 +1,6 @@
+[submodule ".agents/skills/humanizer"]
+	path = .agents/skills/humanizer
+	url = https://github.com/blader/humanizer
+[submodule ".agents/skills/cognitive-rhythm-writing"]
+	path = .agents/skills/cognitive-rhythm-writing
+	url = https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432.git

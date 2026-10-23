@@ -5,9 +5,11 @@ set -eu
 ln -sf ~/dotfiles/.vimrc ~/.vimrc
 ln -sf ~/dotfiles/.gvimrc ~/.gvimrc
 
+git -C ~/dotfiles submodule update --init
 mkdir -p ~/.agents ~/.claude/skills ~/.codex/rules
 ln -sfn ~/dotfiles/.agents/rules ~/.claude/rules
 ln -sfn ~/dotfiles/.claude/hooks ~/.claude/hooks
+find ~/.claude/skills -maxdepth 1 -xtype l -delete
 for skill in ~/dotfiles/.agents/skills/*/; do
   ln -sfn "${skill%/}" ~/.claude/skills/
 done

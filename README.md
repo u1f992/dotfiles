@@ -95,35 +95,20 @@ Codex reads `~/.codex/AGENTS.md` before the project's `AGENTS.md` files. `npm ru
 
 ### Skills
 
-Skill directories carry a `-local` suffix, and the [Agent Skills specification](https://github.com/agentskills/agentskills/blob/5d4c1fda3f786fff826c7f56b6cb3341e7f3a911/docs/specification.mdx#name-field) ([latest](https://agentskills.io/specification#name-field)) requires a skill's `name` to match the parent directory name. The third-party skills below are therefore vendored rather than used as submodules.
+The third-party skills under `.agents/skills/` are git submodules pinned to the revision recorded in this repository. `link.sh` initializes them. `git submodule status` shows the pinned revisions.
 
 | Directory | Upstream |
 | --- | --- |
-| .agents/skills/humanizer-local | [blader/humanizer](https://github.com/blader/humanizer)@[8c307f3](https://github.com/blader/humanizer/tree/8c307f367c91bd974002f10f2be2965d642c13df) (MIT license) |
-| .agents/skills/japanese-tech-writing-local | [k16shikano/fd287c3133457c4fd8f5601d34aa817d](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d)@[8f2d576](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d/8f2d57610a73efc97d743c9b0b0ecb1002e09fa4) ([Unlicense](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d?permalink_comment_id=6210840#gistcomment-6210840)) |
-| .agents/skills/cognitive-rhythm-writing-local | [k16shikano/eb2929f13ed19c97188393d297be8432](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432)@[a3b1e26](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432/a3b1e26beced71d582e13314fb6f5b179b023c76) ([Unlicense](https://gist.github.com/k16shikano/67625f2a7d96e3bbdfae8d571a936063)) |
+| .agents/skills/humanizer | [blader/humanizer](https://github.com/blader/humanizer) (MIT license) |
+| .agents/skills/cognitive-rhythm-writing | [k16shikano/eb2929f13ed19c97188393d297be8432](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432) ([Unlicense](https://gist.github.com/k16shikano/67625f2a7d96e3bbdfae8d571a936063)) |
 
-The local adaptations are the `-local` skill names, the reference to `japanese-tech-writing-local` in `cognitive-rhythm-writing-local`, and the paragraph formatting and Japanese/Latin spacing rules in [`SKILL.md.diff`](.agents/skills/japanese-tech-writing-local/SKILL.md.diff). Compare each skill with its recorded upstream revision:
-
-```shellsession
-$ git clone https://github.com/blader/humanizer .tmp/humanizer
-$ git -C .tmp/humanizer checkout 8c307f367c91bd974002f10f2be2965d642c13df
-$ diff --recursive --exclude=.git .tmp/humanizer .agents/skills/humanizer-local
-```
-
-For `japanese-tech-writing-local`, apply that patch to the upstream checkout first; only the `name` then differs. Re-apply it after any future upstream bump.
+`.agents/skills/japanese-tech-writing` is a vendored copy of [k16shikano/fd287c3133457c4fd8f5601d34aa817d](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d)@[8f2d576](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d/8f2d57610a73efc97d743c9b0b0ecb1002e09fa4) ([Unlicense](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d?permalink_comment_id=6210840#gistcomment-6210840)) with the paragraph formatting and Japanese/Latin spacing rules in [`SKILL.md.diff`](.agents/skills/japanese-tech-writing/SKILL.md.diff) applied. To compare it with upstream, apply the patch to the upstream checkout first, and re-apply it after any future upstream bump:
 
 ```shellsession
 $ git clone https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d.git .tmp/japanese-tech-writing
 $ git -C .tmp/japanese-tech-writing checkout 8f2d57610a73efc97d743c9b0b0ecb1002e09fa4
-$ patch -d .tmp/japanese-tech-writing -p1 < .agents/skills/japanese-tech-writing-local/SKILL.md.diff
-$ diff --recursive --exclude=.git --exclude=SKILL.md.diff .tmp/japanese-tech-writing .agents/skills/japanese-tech-writing-local
-```
-
-```shellsession
-$ git clone https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432.git .tmp/cognitive-rhythm-writing
-$ git -C .tmp/cognitive-rhythm-writing checkout a3b1e26beced71d582e13314fb6f5b179b023c76
-$ diff --recursive --exclude=.git .tmp/cognitive-rhythm-writing .agents/skills/cognitive-rhythm-writing-local
+$ patch -d .tmp/japanese-tech-writing -p1 < .agents/skills/japanese-tech-writing/SKILL.md.diff
+$ diff --recursive --exclude=.git --exclude=SKILL.md.diff --exclude=SKILL.md.orig .tmp/japanese-tech-writing .agents/skills/japanese-tech-writing
 ```
 
 ### Hooks
