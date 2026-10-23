@@ -61,5 +61,3 @@ Public mentions: [kawasin73's post](https://kawasin73.hatenablog.com/entry/2026/
 ### Codex
 
 Codex reads `~/.codex/AGENTS.md` before the project's `AGENTS.md` files. `link.sh` generates `.codex/AGENTS.md` from the rules under `.agents/rules/`.
-
-Codex requires each non-managed hook to be reviewed and trusted once; open `/hooks` on first use.
