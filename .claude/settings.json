@@ -24,7 +24,6 @@
     ]
   },
   "permissions": {
-    "defaultMode": "bypassPermissions",
     "deny": [
       "Bash(gh pr create:*)",
       "Bash(gh issue create:*)",
