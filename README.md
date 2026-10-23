@@ -13,27 +13,6 @@ $ ./link.sh
 > .\link.bat
 ```
 
-## .gitignore-global
-
-Ignore the `.tmp/` directory in all repositories.
-
-```shellsession
-$ git config --global core.excludesfile "$(pwd)/.gitignore-global"
-$ git config --global --get core.excludesfile
-```
-
-To unset:
-
-```shellsession
-$ git config --global --unset core.excludesfile
-```
-
-OXC reads exclusions from `.gitignore` and `.git/info/exclude`, but [deliberately ignores the user's global Git ignore file](https://github.com/oxc-project/oxc/blob/033ddf6d384ea054e106b9706dbffaed57887947/crates/oxc_config/src/walk.rs#L20-L34). In projects that use OXC, append the global exclusions to `.git/info/exclude`:
-
-```shellsession
-$ git_global_ignore="$(git config --path --get core.excludesFile)" && git_info_exclude="$(git rev-parse --path-format=absolute --git-path info/exclude)" && test -f "$git_global_ignore" && test -f "$git_info_exclude" && { printf '\n'; cat "$git_global_ignore"; } >> "$git_info_exclude"
-```
-
 ## Coding agents
 
 `.agents/`, `.claude/`, and `.codex/` hold the personal configuration for Claude Code and Codex, and `link.sh` deploys them into the home directory so that every project on the machine picks them up.
@@ -103,10 +82,11 @@ The third-party skills under `.agents/skills/` are git submodules pinned to the 
 `.agents/skills/japanese-tech-writing` is a vendored copy of [k16shikano/fd287c3133457c4fd8f5601d34aa817d](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d)@[8f2d576](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d/8f2d57610a73efc97d743c9b0b0ecb1002e09fa4) ([Unlicense](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d?permalink_comment_id=6210840#gistcomment-6210840)) with the paragraph formatting and Japanese/Latin spacing rules in [`SKILL.md.diff`](.agents/skills/japanese-tech-writing/SKILL.md.diff) applied. To compare it with upstream, apply the patch to the upstream checkout first, and re-apply it after any future upstream bump:
 
 ```shellsession
-$ git clone https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d.git .tmp/japanese-tech-writing
-$ git -C .tmp/japanese-tech-writing checkout 8f2d57610a73efc97d743c9b0b0ecb1002e09fa4
-$ patch -d .tmp/japanese-tech-writing -p1 < .agents/skills/japanese-tech-writing/SKILL.md.diff
-$ diff --recursive --exclude=.git --exclude=SKILL.md.diff --exclude=SKILL.md.orig .tmp/japanese-tech-writing .agents/skills/japanese-tech-writing
+$ upstream="$(mktemp -d)"
+$ git clone https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d.git "$upstream"
+$ git -C "$upstream" checkout 8f2d57610a73efc97d743c9b0b0ecb1002e09fa4
+$ patch -d "$upstream" -p1 < .agents/skills/japanese-tech-writing/SKILL.md.diff
+$ diff --recursive --exclude=.git --exclude=SKILL.md.diff --exclude=SKILL.md.orig "$upstream" .agents/skills/japanese-tech-writing
 ```
 
 ### Hooks

@@ -14,7 +14,7 @@ $ (timeout 0.1 seq inf || true) | tail -n 5
 <figcaption>OK</figcaption>
 
 ```shellsession
-$ (timeout 0.1 seq inf || true) | tee .tmp/seq.log | tail -n 5
+$ (timeout 0.1 seq inf || true) | tee seq.log | tail -n 5
 ```
 
 </figure>

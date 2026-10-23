@@ -6,12 +6,6 @@ Patch context matching and failure are an explicit safety harness. A failed patc
 
 Automated transformations using sed, awk, Python, or similar tools are appropriate when the transformation itself has a clear advantage, such as a substantial uniform replacement or a structured conversion. The justification must come from the work being automated, not from convenience, habit, a patch failure, or a desire to avoid inspection. Such transformations must still satisfy applicable hook checks; automation does not authorize bypassing them.
 
-## Project-local temporary directory
-
-When creating temporary files or storing downloads and clones for investigation, prefer `.tmp/` over `/tmp/`. Note that `.tmp/` is excluded from tracking by the global `core.excludesfile`.
-
-`.tmp/` holds temporary files, just as `/tmp/` does. Do not impose on the user the inconvenience of inspecting the inside of `.tmp/`. Take deliverables for the user out of `.tmp/` and present them appropriately.
-
 ## Prohibition of writing comments
 
 This rule governs the writing of comments. It is not a mandate to clean up comments already present in the codebase and does not expand the scope of the user's request. Leave existing comments unchanged unless changing them is part of the requested work. When moving code, preserve the comments that accompany it rather than treating the move as authorization to delete them.
@@ -65,7 +59,7 @@ $ (timeout 0.1 seq inf || true) | tail -n 5
 <figcaption>OK</figcaption>
 
 ```shellsession
-$ (timeout 0.1 seq inf || true) | tee .tmp/seq.log | tail -n 5
+$ (timeout 0.1 seq inf || true) | tee seq.log | tail -n 5
 ```
 
 </figure>
