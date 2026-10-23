@@ -89,7 +89,7 @@ Public mentions: [kawasin73's post](https://kawasin73.hatenablog.com/entry/2026/
 
 Codex reads `~/.codex/AGENTS.md` before the project's `AGENTS.md` files. `npm run generate:instructions` regenerates `.codex/AGENTS.md` by joining the files under `.agents/rules/` in name order. Run it after changing a rule, then run `link.sh` again if `~/.codex/config.toml` also needs the merge.
 
-`.codex/config.toml` enables hooks and sets the approval policy and sandbox mode. `.codex/rules/no-external-operations.rules` blocks `gh pr create`, `gh issue create`, and `git push`. Codex requires each non-managed hook to be reviewed and trusted once; open `/hooks` on first use.
+`.codex/config.toml` enables hooks. `.codex/rules/no-external-operations.rules` blocks `gh pr create`, `gh issue create`, and `git push`. Codex requires each non-managed hook to be reviewed and trusted once; open `/hooks` on first use.
 
 ### Skills
 
