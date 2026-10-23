@@ -69,7 +69,7 @@ The third-party skills below are vendored. This is because the specification als
 
 | Directory | Upstream |
 | --- | --- |
-| .agents/skills/humanizer-local | [blader/humanizer](https://github.com/blader/humanizer)@[9862685](https://github.com/blader/humanizer/tree/9862685f575c65a8247f90369951df1b3416e3d6) (MIT license) |
+| .agents/skills/humanizer-local | [blader/humanizer](https://github.com/blader/humanizer)@[8c307f3](https://github.com/blader/humanizer/tree/8c307f367c91bd974002f10f2be2965d642c13df) (MIT license) |
 | .agents/skills/japanese-tech-writing-local | [k16shikano/fd287c3133457c4fd8f5601d34aa817d](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d)@[8f2d576](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d/8f2d57610a73efc97d743c9b0b0ecb1002e09fa4) ([Unlicense](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d?permalink_comment_id=6210840#gistcomment-6210840)) |
 | .agents/skills/cognitive-rhythm-writing-local | [k16shikano/eb2929f13ed19c97188393d297be8432](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432)@[a3b1e26](https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432/a3b1e26beced71d582e13314fb6f5b179b023c76) ([Unlicense](https://gist.github.com/k16shikano/67625f2a7d96e3bbdfae8d571a936063)) |
 
@@ -77,7 +77,7 @@ The local adaptations are the `-local` skill names, the reference to `japanese-t
 
 ```shellsession
 $ git clone https://github.com/blader/humanizer .tmp/humanizer
-$ git -C .tmp/humanizer checkout 9862685f575c65a8247f90369951df1b3416e3d6
+$ git -C .tmp/humanizer checkout 8c307f367c91bd974002f10f2be2965d642c13df
 $ diff --recursive --exclude=.git .tmp/humanizer .agents/skills/humanizer-local
 ```
 
