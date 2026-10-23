@@ -83,9 +83,3 @@ $ git -C "$upstream" checkout 8f2d57610a73efc97d743c9b0b0ecb1002e09fa4
 $ patch -d "$upstream" -p1 < .agents/skills/japanese-tech-writing/SKILL.md.diff
 $ diff --recursive --exclude=.git --exclude=SKILL.md.diff --exclude=SKILL.md.orig "$upstream" .agents/skills/japanese-tech-writing
 ```
-
-### Hooks
-
-The `reject-words.local.ts` hook rejects an assistant response or a file edit that contains a banned expression. It runs on Stop, where it checks the final assistant message, and on PreToolUse for the editing tools, where it checks the content about to be written. The rejection message lists the matched patterns with their reason.
-
-The banned expressions are listed in `.agents/hooks/banned-words.local.ts`. Each entry pairs one or more regular expressions with the reason shown on rejection. Both hosts share this list.
