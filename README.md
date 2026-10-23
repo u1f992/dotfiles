@@ -52,7 +52,7 @@ Claude Code and Codex write to `~/.claude/settings.json` and `~/.codex/config.to
 
 ### Claude Code
 
-`~/.claude/rules/*.md` loads in every project, so the shared rules need no `CLAUDE.md`.
+Claude Code loads `~/.claude/rules/*.md` in every project.
 
 `.claude/settings.json` sets `CLAUDE_CODE_THRIFTY_SONIC` to `"0"`. The variable is undocumented as of v2.1.274 and overrides the `tengu_thrifty_sonic` feature flag, which in auto and `bypassPermissions` modes injects an instruction to read, search, and edit files through Bash in place of the Read, Edit, and Write tools. Path-scoped rules and nested `CLAUDE.md` files load through the Read tool, and hooks matched on `Read`, `Edit`, or `Write` run for those tools, so file access through Bash triggers none of them.
 
