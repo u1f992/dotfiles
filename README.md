@@ -69,17 +69,3 @@ Public mentions: [kawasin73's post](https://kawasin73.hatenablog.com/entry/2026/
 Codex reads `~/.codex/AGENTS.md` before the project's `AGENTS.md` files. `link.sh` generates `.codex/AGENTS.md` by joining the files under `.agents/rules/` in name order. Run `link.sh` again after changing a rule.
 
 Codex requires each non-managed hook to be reviewed and trusted once; open `/hooks` on first use.
-
-### Skills
-
-The third-party skills under `.agents/skills/` are git submodules.
-
-`.agents/skills/japanese-tech-writing` is a vendored copy of [k16shikano/fd287c3133457c4fd8f5601d34aa817d](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d)@[8f2d576](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d/8f2d57610a73efc97d743c9b0b0ecb1002e09fa4) ([Unlicense](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d?permalink_comment_id=6210840#gistcomment-6210840)) with the paragraph formatting and Japanese/Latin spacing rules in [`SKILL.md.diff`](.agents/skills/japanese-tech-writing/SKILL.md.diff) applied. To compare it with upstream, apply the patch to the upstream checkout first, and re-apply it after any future upstream bump:
-
-```shellsession
-$ upstream="$(mktemp -d)"
-$ git clone https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d.git "$upstream"
-$ git -C "$upstream" checkout 8f2d57610a73efc97d743c9b0b0ecb1002e09fa4
-$ patch -d "$upstream" -p1 < .agents/skills/japanese-tech-writing/SKILL.md.diff
-$ diff --recursive --exclude=.git --exclude=SKILL.md.diff --exclude=SKILL.md.orig "$upstream" .agents/skills/japanese-tech-writing
-```
