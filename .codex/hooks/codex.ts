@@ -1,4 +1,4 @@
-import type { HookAdapter } from "./policy.local/hook-adapter.ts";
+import type { HookAdapter } from "./policy/hook-adapter.ts";
 
 /**
  * Codex command-hook wire types used by this repository.

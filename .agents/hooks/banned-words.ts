@@ -1,4 +1,4 @@
-import type { Ban } from "./policy.local/reject-words.ts";
+import type { Ban } from "./policy/reject-words.ts";
 
 export default [
   {

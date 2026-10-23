@@ -8,10 +8,10 @@ import type {
   Decision,
   PreToolUseDecision,
   StopDecision,
-} from "../../../.claude/hooks/claude.local.ts";
-import bannedWords from "../../../.claude/hooks/banned-words.local.ts";
-import { adapter } from "../../../.claude/hooks/claude.local.ts";
-import { rejectWords } from "../../../.claude/hooks/policy.local/reject-words.ts";
+} from "../../../.claude/hooks/claude.ts";
+import bannedWords from "../../../.claude/hooks/banned-words.ts";
+import { adapter } from "../../../.claude/hooks/claude.ts";
+import { rejectWords } from "../../../.claude/hooks/policy/reject-words.ts";
 
 // `Decision`はユニオンなので、片方の枝にしかないプロパティは直接読めない。
 // 期待したイベントの決定が返っていることをassertしたうえで絞り込む。
@@ -30,7 +30,7 @@ const bans = [
   { patterns: [/Foo/i], reason: "Fooを禁じる理由" },
   { patterns: [/bar baz/], reason: "bar bazを禁じる理由" },
 ];
-const bannedUrl = new URL("file:///hooks/banned-words.local.ts");
+const bannedUrl = new URL("file:///hooks/banned-words.ts");
 
 // 着色はエントリポイントの持ち物なので、コアには印を渡して適用の有無だけを見る。
 const styleDeny = (text: string) => `<deny>${text}</deny>`;
@@ -209,7 +209,7 @@ const assertInvalidFormat = (decision: Decision) => {
     decision.systemMessage ?? "",
     /must export default an array of \{ patterns: \[RegExp, \.\.\.RegExp\[\]\], reason: string \}/,
   );
-  assert.ok(decision.systemMessage?.includes("/hooks/banned-words.local.ts"));
+  assert.ok(decision.systemMessage?.includes("/hooks/banned-words.ts"));
 };
 
 test("登録語の一覧が配列でなければ形式の誤りを知らせる", () => {
@@ -245,7 +245,7 @@ test("reasonキーを欠く要素があれば形式の誤りを知らせる", ()
 const hooksDir = fileURLToPath(
   new URL("../../../.claude/hooks/", import.meta.url),
 );
-const hookPath = `${hooksDir}reject-words.local.ts`;
+const hookPath = `${hooksDir}reject-words.ts`;
 
 test("配置済みの登録語一覧は{ patterns, reason }の配列になっている", () => {
   const parsed: unknown = bannedWords;

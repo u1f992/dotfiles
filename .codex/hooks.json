@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.codex/hooks/reject-words.local.ts"
+            "command": "~/.codex/hooks/reject-words.ts"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.codex/hooks/reject-words.local.ts"
+            "command": "~/.codex/hooks/reject-words.ts"
           }
         ]
       }

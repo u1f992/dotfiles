@@ -4,15 +4,15 @@ import fs from "node:fs";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import bannedWords from "../../../.codex/hooks/banned-words.local.ts";
+import bannedWords from "../../../.codex/hooks/banned-words.ts";
 import {
   adapter,
   extractAddedContent,
   isApplyPatchToolUseInput,
   isStopHookInput,
   type StopDecision,
-} from "../../../.codex/hooks/codex.local.ts";
-import { rejectWords } from "../../../.codex/hooks/policy.local/reject-words.ts";
+} from "../../../.codex/hooks/codex.ts";
+import { rejectWords } from "../../../.codex/hooks/policy/reject-words.ts";
 
 const common = {
   session_id: "session",
@@ -61,7 +61,7 @@ test("apply_patchから追加行だけを抽出する", () => {
 });
 
 const bans = [{ patterns: [/forbidden/], reason: "test" }];
-const bannedUrl = new URL("file:///hooks/banned-words.local.ts");
+const bannedUrl = new URL("file:///hooks/banned-words.ts");
 const checkPatch = (command: string) =>
   rejectWords(
     adapter,
@@ -90,7 +90,7 @@ const hooksDir = fileURLToPath(
 );
 
 test("Stopエントリポイントが禁止語を拒否する", () => {
-  const hookPath = `${hooksDir}reject-words.local.ts`;
+  const hookPath = `${hooksDir}reject-words.ts`;
   fs.accessSync(hookPath, fs.constants.X_OK);
   const literal = bannedWords
     .flatMap(({ patterns }) => patterns)

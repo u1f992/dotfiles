@@ -1,4 +1,4 @@
-import type { HookAdapter } from "./policy.local/hook-adapter.ts";
+import type { HookAdapter } from "./policy/hook-adapter.ts";
 
 /**
  * イベントを問わず解釈される共通フィールド。イベント固有の決定と同じJSONに載る。

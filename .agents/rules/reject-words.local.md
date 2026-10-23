@@ -1,6 +1,6 @@
 ## Prohibition of certain words
 
-Certain unnatural expressions are prohibited: the kind that sound distinctly AI-generated, carry no real substance, and irritate the reader. As a baseline, stay conscious of not using them. On top of that, they are enforced through hooks. The mechanically checked list is the default export of `hooks/banned-words.local.ts` under the active agent's configuration directory.
+Certain unnatural expressions are prohibited: the kind that sound distinctly AI-generated, carry no real substance, and irritate the reader. As a baseline, stay conscious of not using them. On top of that, they are enforced through hooks. The mechanically checked list is the default export of `hooks/banned-words.ts` under the active agent's configuration directory.
 
 ### The words are symptoms; the framing is the offence
 
