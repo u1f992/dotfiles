@@ -1,4 +1,3 @@
-@rules/language.local.md
 @rules/local-tmp.local.md
 @rules/no-comments.local.md
 @rules/no-task-context-in-docs.local.md

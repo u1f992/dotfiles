@@ -3,7 +3,6 @@ import { readFile, writeFile } from "node:fs/promises";
 const repositoryRoot = new URL("../", import.meta.url);
 const rulePaths = [
   ".codex/rules/agents-preamble.local.md",
-  ".agents/rules/language.local.md",
   ".agents/rules/local-tmp.local.md",
   ".agents/rules/no-comments.local.md",
   ".agents/rules/no-task-context-in-docs.local.md",

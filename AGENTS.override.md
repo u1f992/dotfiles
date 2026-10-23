@@ -2,10 +2,6 @@
 
 Despite its filename, this file exists to isolate additional user-local prompts, not to "override" project instructions. Before starting work, if `./AGENTS.md` exists, read it and apply its contents as the project's base instructions.
 
-## Response language
-
-Respond in Japanese unless the user requests another language.
-
 ## Project-local temporary directory
 
 When creating temporary files or storing downloads and clones, prefer `.tmp/` over `/tmp/`. Note that `.tmp/` is excluded from tracking by the global `core.excludesfile`.
