@@ -7,12 +7,6 @@ $ npm install
 $ ./link.sh
 ```
 
-### Windows
-
-```shellsession
-> .\link.bat
-```
-
 ## Coding agents
 
 `.agents/`, `.claude/`, and `.codex/` hold the personal configuration for Claude Code and Codex.

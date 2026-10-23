@@ -18,14 +18,7 @@ set clipboard=unnamedplus,unnamed,autoselect
 set autoread
 autocmd FocusGained,BufEnter * checktime
 
-" For Windows Terminal
-" https://github.com/microsoft/terminal/issues/832
 set termguicolors
-
-if has("win32") || has("win64")
-    " Use PowerShell for :term
-    " set shell=pwsh
-endif
 
 " vim-plug
 " https://github.com/junegunn/vim-plug

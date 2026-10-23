@@ -1,9 +1,7 @@
 #!/bin/sh
 set -eu
 
-# ln -sf ~/dotfiles/.minttyrc ~/.minttyrc
 ln -sf ~/dotfiles/.vimrc ~/.vimrc
-ln -sf ~/dotfiles/.gvimrc ~/.gvimrc
 
 git -C ~/dotfiles submodule update --init
 mkdir -p ~/.agents ~/.claude/skills ~/.codex/rules
