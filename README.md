@@ -48,7 +48,7 @@ $ ./link.sh
 
 `~/.claude/skills` itself stays a regular directory because Claude Code keeps the skills synced from claude.ai under `~/.claude/skills/synced/`.
 
-Claude Code and Codex write to `~/.claude/settings.json` and `~/.codex/config.toml` themselves, so `link.sh` merges `.claude/settings.json` and `.codex/config.toml` into them with `scripts/merge-user-config.ts` instead of linking. Tables are merged key by key, and a key present in the template takes the template's value. When the merge changes an existing file, the previous content is kept next to it as `<file>.<timestamp>.bak`. Running `link.sh` again after editing a template or a rule reapplies the merge.
+`link.sh` merges `.claude/settings.json` into `~/.claude/settings.json` and `.codex/config.toml` into `~/.codex/config.toml`. Keys from this repository take the repository's values, and other keys in the home files keep theirs. Before a home file changes, its previous content is saved next to it as `<file>.<timestamp>.bak`. Run `link.sh` again after editing either file in this repository.
 
 ### Claude Code
 
