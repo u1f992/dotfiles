@@ -3,6 +3,7 @@
 ```shellsession
 $ git clone https://github.com/u1f992/dotfiles.git ~/dotfiles
 $ cd ~/dotfiles
+$ npm install
 $ ./link.sh
 ```
 
@@ -14,7 +15,7 @@ $ ./link.sh
 
 ## .gitignore-global
 
-Ignore the `.tmp/` directory and personal Claude Code/Codex settings in all repositories. Codex's `.codex/` directory is excluded as a unit; under `.agents/`, only files and directories carrying `.local` or `-local` suffixes are excluded.
+Ignore the `.tmp/` directory in all repositories.
 
 ```shellsession
 $ git config --global core.excludesfile "$(pwd)/.gitignore-global"
@@ -33,27 +34,50 @@ OXC reads exclusions from `.gitignore` and `.git/info/exclude`, but [deliberatel
 $ git_global_ignore="$(git config --path --get core.excludesFile)" && git_info_exclude="$(git rev-parse --path-format=absolute --git-path info/exclude)" && test -f "$git_global_ignore" && test -f "$git_info_exclude" && { printf '\n'; cat "$git_global_ignore"; } >> "$git_info_exclude"
 ```
 
-## Claude Code
+## Coding agents
 
-`.claude/` holds personal Claude Code configuration. Each item carries a suffix so that `core.excludesfile` (see above) ignores it in other projects. This assumes those projects do not use the suffix themselves. The suffix is `.local`, except skill directories, which use `-local` to conform to the [Agent Skills specification](https://github.com/agentskills/agentskills/blob/5d4c1fda3f786fff826c7f56b6cb3341e7f3a911/docs/specification.mdx#name-field) ([latest](https://agentskills.io/specification#name-field)).
+`.agents/`, `.claude/`, and `.codex/` hold the personal configuration for Claude Code and Codex, and `link.sh` deploys them into the home directory so that every project on the machine picks them up.
 
-Deploy them into a project with symlinks dereferenced. The destination receives regular files rather than links back into this repository:
-
-```shellsession
-$ cp -RL ~/dotfiles/.claude proj-dir/
+```text
+.agents/
+├── hooks/     shared hook policy and the banned word list
+├── rules/     shared rules, one topic per file
+└── skills/    shared skills
+.claude/
+├── hooks/     Claude Code hook entry point and adapter
+└── settings.json
+.codex/
+├── AGENTS.md  generated from .agents/rules/
+├── config.toml
+├── hooks/     Codex hook entry point and adapter
+├── hooks.json
+└── rules/
 ```
 
-Since [v2.1.257](https://github.com/anthropics/claude-code/blob/b5932767f3acbd07da25367064827e5cb81f43de/CHANGELOG.md#21257), Claude Code ignores `permissions.defaultMode: "bypassPermissions"` in `.claude/settings.json` and `.claude/settings.local.json` and honors it from user and managed settings, so set it in `~/.claude/settings.json`:
+`link.sh` creates these symlinks:
 
-```json
-{
-  "permissions": {
-    "defaultMode": "bypassPermissions"
-  }
-}
-```
+| Link | Target |
+| --- | --- |
+| `~/.claude/rules` | `.agents/rules` |
+| `~/.claude/hooks` | `.claude/hooks` |
+| `~/.claude/skills/<skill>` | `.agents/skills/<skill>`, one link per skill |
+| `~/.agents/skills` | `.agents/skills` |
+| `~/.codex/AGENTS.md` | `.codex/AGENTS.md` |
+| `~/.codex/hooks` | `.codex/hooks` |
+| `~/.codex/hooks.json` | `.codex/hooks.json` |
+| `~/.codex/rules/no-external-operations.rules` | `.codex/rules/no-external-operations.rules` |
 
-`.claude/settings.local.json` sets `CLAUDE_CODE_THRIFTY_SONIC` to `"0"`. The variable is undocumented as of v2.1.274 and overrides the `tengu_thrifty_sonic` feature flag, which in auto and `bypassPermissions` modes injects an instruction to read, search, and edit files through Bash in place of the Read, Edit, and Write tools. Path-scoped rules and nested `CLAUDE.md` files load through the Read tool, and hooks matched on `Read`, `Edit`, or `Write` run for those tools, so file access through Bash triggers none of them.
+`~/.claude/skills` itself stays a regular directory because Claude Code keeps the skills synced from claude.ai under `~/.claude/skills/synced/`.
+
+Claude Code and Codex write to `~/.claude/settings.json` and `~/.codex/config.toml` themselves, so `link.sh` merges `.claude/settings.json` and `.codex/config.toml` into them with `scripts/merge-user-config.ts` instead of linking. Tables are merged key by key, and a key present in the template takes the template's value. When the merge changes an existing file, the previous content is kept next to it as `<file>.<timestamp>.bak`. Running `link.sh` again after editing a template or a rule reapplies the merge.
+
+### Claude Code
+
+`~/.claude/rules/*.md` loads in every project, so the shared rules need no `CLAUDE.md`.
+
+`.claude/settings.json` sets `permissions.defaultMode` to `bypassPermissions`. Since [v2.1.257](https://github.com/anthropics/claude-code/blob/b5932767f3acbd07da25367064827e5cb81f43de/CHANGELOG.md#21257), Claude Code honors this key from user and managed settings and ignores it in `.claude/settings.json` and `.claude/settings.local.json`.
+
+The same file sets `CLAUDE_CODE_THRIFTY_SONIC` to `"0"`. The variable is undocumented as of v2.1.274 and overrides the `tengu_thrifty_sonic` feature flag, which in auto and `bypassPermissions` modes injects an instruction to read, search, and edit files through Bash in place of the Read, Edit, and Write tools. Path-scoped rules and nested `CLAUDE.md` files load through the Read tool, and hooks matched on `Read`, `Edit`, or `Write` run for those tools, so file access through Bash triggers none of them.
 
 Public mentions: [kawasin73's post](https://kawasin73.hatenablog.com/entry/2026/09/05/092056) (2026-09-05), [anthropics/claude-code#92271](https://github.com/anthropics/claude-code/issues/92271), and the comments on #90450 that [introduce the variable](https://github.com/anthropics/claude-code/issues/90450#issuecomment-5551944607) and [verify it through the `auto_mode` transcript attachment](https://github.com/anthropics/claude-code/issues/90450#issuecomment-5552521491).
 
@@ -63,9 +87,15 @@ Public mentions: [kawasin73's post](https://kawasin73.hatenablog.com/entry/2026/
 > $ ln -s AGENTS.md CLAUDE.md
 > ```
 
-The canonical shared rules and skills are under `.agents/rules/` and `.agents/skills/`. `.claude/rules` and `.claude/skills` are relative symlinks to those shared directories. `cp -RL` dereferences the links when deploying Claude configuration, so the destination receives regular `rules/` and `skills/` directories.
+### Codex
 
-The third-party skills below are vendored. This is because the specification also requires a skill's `name` to match the parent directory name, so an unmodified submodule and the `-local` suffix cannot coexist.
+Codex reads `~/.codex/AGENTS.md` before the project's `AGENTS.md` files. `npm run generate:instructions` regenerates `.codex/AGENTS.md` by joining the files under `.agents/rules/` in name order. Run it after changing a rule, then run `link.sh` again if `~/.codex/config.toml` also needs the merge.
+
+`.codex/config.toml` enables hooks and sets the approval policy and sandbox mode. `.codex/rules/no-external-operations.rules` blocks `gh pr create`, `gh issue create`, and `git push`. Codex requires each non-managed hook to be reviewed and trusted once; open `/hooks` on first use.
+
+### Skills
+
+Skill directories carry a `-local` suffix, and the [Agent Skills specification](https://github.com/agentskills/agentskills/blob/5d4c1fda3f786fff826c7f56b6cb3341e7f3a911/docs/specification.mdx#name-field) ([latest](https://agentskills.io/specification#name-field)) requires a skill's `name` to match the parent directory name. The third-party skills below are therefore vendored rather than used as submodules.
 
 | Directory | Upstream |
 | --- | --- |
@@ -96,28 +126,7 @@ $ git -C .tmp/cognitive-rhythm-writing checkout a3b1e26beced71d582e13314fb6f5b17
 $ diff --recursive --exclude=.git .tmp/cognitive-rhythm-writing .agents/skills/cognitive-rhythm-writing-local
 ```
 
-## Codex
-
-The Claude Code configuration is mirrored into Codex-native repository surfaces:
-
-- `.codex/rules/agents-preamble.local.md` contains only the Codex-specific instructions for loading `./AGENTS.md` and resolving precedence.
-- `.agents/rules/` contains the canonical rules shared with Claude Code.
-- `AGENTS.override.md` is generated by joining the Codex-only preamble and the shared rules with `npm run generate:instructions`.
-- `.agents/skills/` contains the local skills.
-- `.codex/config.toml` and `.codex/hooks.json` configure Codex and its hooks.
-- `.codex/rules/default.rules` blocks `gh pr create`, `gh issue create`, and `git push`.
-
-Deploy the Codex configuration and shared skills in the same way:
-
-```shellsession
-$ cp -RL ~/dotfiles/.agents ~/dotfiles/.codex ~/dotfiles/AGENTS.override.md proj-dir/
-```
-
-After running `./link.sh`, deploy both the Claude Code and Codex configurations at once by passing the destination directory explicitly. Use `.` for the current directory:
-
-```shellsession
-$ setup-ai-agents .
-```
+### Hooks
 
 Shared hook data and host-independent policy code have one canonical copy under `.agents/hooks/`:
 
@@ -133,7 +142,3 @@ Shared hook data and host-independent policy code have one canonical copy under 
 `banned-words.local.ts` exports the banned word list as its default export, typed as `Ban[]` from `policy.local/reject-words.ts`. Each entry pairs one or more `RegExp` patterns with the reason shown on rejection; the policy searches the checked text with each pattern as written, so case sensitivity is decided per pattern by its flags, and a rejection lists the patterns that matched next to their shared reason. Claude and Codex keep only their host-specific hook schema and `HookAdapter` in `.claude/hooks/claude.local.ts` and `.codex/hooks/codex.local.ts`. Their `policy.local/` directories and `banned-words.local.ts` are relative symlinks to `.agents/hooks/`. The executable entry points only connect an adapter, a policy, and the word list module; stdin/stdout handling and the dynamic import of that module live in the shared `cli.ts`.
 
 Each host registers `reject-words.local.ts` for both the Stop and PreToolUse events; the policy checks the final assistant message on Stop and the content to be written on PreToolUse. Codex's edit adapter extracts only added lines from an `apply_patch` command, so deleted and unchanged context do not trigger the banned-word policy.
-
-`cp -RL` follows all these links, so deployed projects are self-contained and contain regular files rather than links back into this repository.
-
-Codex loads project configuration only after the repository is trusted. Review and trust the migrated command hooks with `/hooks` on first use.
