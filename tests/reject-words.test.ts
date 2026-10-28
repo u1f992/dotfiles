@@ -14,7 +14,7 @@ import { adapter } from "../home/dot_claude/hooks/claude.ts";
 import { rejectWords } from "../home/dot_claude/hooks/policy/reject-words.ts";
 
 // `Decision`はユニオンなので、片方の枝にしかないプロパティは直接読めない。
-// 期待したイベントの決定が返っていることをassertしたうえで絞り込む。
+// 期待したイベントの決定であることをassertしたうえで絞り込む。
 const asStopDecision = (decision: Decision): StopDecision => {
   assert.notEqual(decision.hookSpecificOutput?.hookEventName, "PreToolUse");
   return decision as StopDecision;
@@ -24,15 +24,15 @@ const asPreToolUseDecision = (decision: Decision): PreToolUseDecision => {
   return decision as PreToolUseDecision;
 };
 
-// 実ファイルではなく固定のリストを使う。実ファイルの中身が変わってもテストが
-// 揺れないようにし、大文字小文字や空白入りの語も含めて照合を確かめる。
+// 実ファイルではなく固定のリストを使う。実ファイルの中身が変わってもテストの
+// 結果が変わらないようにし、大文字小文字や空白入りの語も含めて照合を確かめる。
 const bans = [
   { patterns: [/Foo/i], reason: "Fooを禁じる理由" },
   { patterns: [/bar baz/], reason: "bar bazを禁じる理由" },
 ];
 const bannedUrl = new URL("file:///hooks/banned-words.ts");
 
-// 着色はエントリポイントの持ち物なので、コアには印を渡して適用の有無だけを見る。
+// 着色はエントリポイントの持ち物なので、コアの引数には印を付ける関数を指定し、適用の有無だけを見る。
 const styleDeny = (text: string) => `<deny>${text}</deny>`;
 
 const run = (input: unknown, content: unknown = bans) =>
@@ -142,8 +142,8 @@ void test("Writeで登録語が無ければ何も決めない", () => {
   assert.deepEqual(run(write("hello world")), {});
 });
 
-// マッチャは Stop と Write|Edit に限定されており、対象外はそもそも届かない。
-// 万一届いても何も決めず素通りさせる。
+// マッチャは Stop と Write|Edit に限定されており、対象外のツールではフック自体が
+// 起動しない。万一起動しても何も決めず素通りさせる。
 void test("Write/Edit以外のツールは素通りする", () => {
   assert.deepEqual(run({ tool_name: "Read", tool_input: { file_path: "/x" } }), {});
 });
@@ -187,7 +187,7 @@ void test("systemMessageはstyleDenyを通さない", () => {
 });
 
 // 形式不正で止めても直せるのは利用者なので、何も決めずにsystemMessageに載せる。
-// ブロックしないことと、何が壊れているか伝わることの両方を確かめる。
+// ブロックしないことと、どこが形式に合わないかが伝わることの両方を確かめる。
 const assertInvalidFormat = (decision: Decision) => {
   assert.equal(decision.hookSpecificOutput, undefined);
   assert.equal(asStopDecision(decision).decision, undefined);
@@ -262,7 +262,7 @@ void test("エントリポイントはstdinを読んでstdoutに決定を書く"
   const decision = JSON.parse(res.stdout);
   assert.equal(decision.decision, "block");
   assert.ok(decision.reason.includes(source));
-  // 着色を渡しているのはエントリポイントなので、ANSIはここでしか確かめられない。
+  // 着色の関数を指定しているのはエントリポイントなので、ANSIはここでしか確かめられない。
   assert.ok(decision.reason.includes("\x1b[31m"));
   assert.ok(decision.reason.includes("\x1b[39m"));
 });
