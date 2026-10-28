@@ -32,11 +32,8 @@ const bans = [
 ];
 const bannedUrl = new URL("file:///hooks/banned-words.ts");
 
-// 着色はエントリポイントの持ち物なので、コアの引数には印を付ける関数を指定し、適用の有無だけを見る。
-const styleDeny = (text: string) => `<deny>${text}</deny>`;
-
 const run = (input: unknown, content: unknown = bans) =>
-  rejectWords(adapter, input, { url: bannedUrl, content }, styleDeny);
+  rejectWords(adapter, input, { url: bannedUrl, content });
 
 const stop = (last_assistant_message: string, stop_hook_active = false) => ({
   stop_hook_active,
@@ -166,26 +163,6 @@ void test("どのスキーマにも合致しない入力は素通りする", () 
   assert.deepEqual(run({ foo: 1 }), {});
 });
 
-void test("Stopの理由はstyleDenyを通す", () => {
-  const { reason } = asStopDecision(run(stop("Foo")));
-  assert.ok(reason?.startsWith("<deny>"));
-  assert.ok(reason?.endsWith("</deny>"));
-});
-
-void test("PreToolUseの理由はstyleDenyを通す", () => {
-  const { hookSpecificOutput } = asPreToolUseDecision(run(write("Foo")));
-  const { permissionDecisionReason } = hookSpecificOutput;
-  assert.ok(permissionDecisionReason?.startsWith("<deny>"));
-  assert.ok(permissionDecisionReason?.endsWith("</deny>"));
-});
-
-// 診断はstyleDenyを通さない。拒否ではなく設定ファイルの不備の通知なので、
-// 装飾の対象が違う。
-void test("systemMessageはstyleDenyを通さない", () => {
-  const decision = run(stop("hello"), { Foo: true });
-  assert.ok(!decision.systemMessage?.includes("<deny>"));
-});
-
 // 形式不正で止めても直せるのは利用者なので、何も決めずにsystemMessageに載せる。
 // ブロックしないことと、どこが形式に合わないかが伝わることの両方を確かめる。
 const assertInvalidFormat = (decision: Decision) => {
@@ -262,7 +239,4 @@ void test("エントリポイントはstdinを読んでstdoutに決定を書く"
   const decision = JSON.parse(res.stdout);
   assert.equal(decision.decision, "block");
   assert.ok(decision.reason.includes(source));
-  // 着色の関数を指定しているのはエントリポイントなので、ANSIはここでしか確かめられない。
-  assert.ok(decision.reason.includes("\x1b[31m"));
-  assert.ok(decision.reason.includes("\x1b[39m"));
 });

@@ -63,7 +63,7 @@ void test("apply_patchから追加行だけを抽出する", () => {
 const bans = [{ patterns: [/forbidden/], reason: "test" }];
 const bannedUrl = new URL("file:///hooks/banned-words.ts");
 const checkPatch = (command: string) =>
-  rejectWords(adapter, applyPatch(command), { url: bannedUrl, content: bans }, (text) => text);
+  rejectWords(adapter, applyPatch(command), { url: bannedUrl, content: bans });
 
 void test("追加行の禁止語を拒否する", () => {
   const decision = checkPatch("*** Begin Patch\n*** Update File: x\n+forbidden\n*** End Patch");

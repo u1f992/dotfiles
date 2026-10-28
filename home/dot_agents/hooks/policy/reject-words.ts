@@ -42,7 +42,6 @@ export const rejectWords = <Decision>(
   adapter: HookAdapter<Decision>,
   input: unknown,
   source: { url: URL; content: unknown },
-  styleDeny: (text: string) => string,
 ): Decision => {
   if (!isBanArray(source.content)) {
     return adapter.warn(
@@ -53,16 +52,14 @@ export const rejectWords = <Decision>(
   const message = adapter.stop.message(input);
   if (message !== undefined) {
     const violations = findViolations(message, source.content);
-    return violations.length > 0
-      ? adapter.stop.block(styleDeny(stopReason(violations)))
-      : adapter.allow();
+    return violations.length > 0 ? adapter.stop.block(stopReason(violations)) : adapter.allow();
   }
 
   for (const edit of adapter.edits) {
     const content = edit.content(input);
     if (content === undefined) continue;
     const violations = findViolations(content, source.content);
-    return violations.length > 0 ? edit.deny(styleDeny(editReason(violations))) : adapter.allow();
+    return violations.length > 0 ? edit.deny(editReason(violations)) : adapter.allow();
   }
 
   return adapter.allow();
