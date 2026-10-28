@@ -26,17 +26,11 @@ const findViolations = (text: string, bans: readonly Ban[]): Violation[] =>
 const formatViolations = (violations: readonly Violation[]) =>
   violations.map(({ matched, reason }) => `  - ${matched.join(", ")}: ${reason}`).join("\n");
 
-const framingNotice =
-  "These words are symptoms. What is banned is the framing that produces them: " +
-  "spending the turn on rapport instead of on the work. " +
-  "Substituting synonyms leaves the response just as wrong. " +
-  "Rebuild it from what was actually asked.";
-
 const stopReason = (violations: readonly Violation[]) =>
-  `The response resorts to banned expressions:\n${formatViolations(violations)}\n${framingNotice}\n`;
+  `The response resorts to banned expressions:\n${formatViolations(violations)}`;
 
 const editReason = (violations: readonly Violation[]) =>
-  `The content to write resorts to banned expressions:\n${formatViolations(violations)}\n${framingNotice}\n`;
+  `The content to write resorts to banned expressions:\n${formatViolations(violations)}`;
 
 export const rejectWords = <Decision>(
   adapter: HookAdapter<Decision>,

@@ -75,15 +75,6 @@ void test("reasonを共有するpatternsのうち該当したものだけを載�
   assert.ok(both.reason?.includes("/Foo/, /Bar/: r"));
 });
 
-// 語の言い換えで済むという誤読を招かないよう、禁止の対象が語ではなくフレーミングで
-// あることを拒否のたびに載せる。Stop と PreToolUse のどちらでも欠かせない。
-void test("拒否の理由に言い換えでは直らない旨を載せる", () => {
-  const { reason } = asStopDecision(run(stop("Foo")));
-  assert.ok(reason?.includes("Substituting synonyms"));
-  const { hookSpecificOutput } = asPreToolUseDecision(run(write("Foo")));
-  assert.ok(hookSpecificOutput.permissionDecisionReason?.includes("Substituting synonyms"));
-});
-
 void test("iフラグ付きの登録語は大文字小文字を無視して照合する", () => {
   assert.equal(asStopDecision(run(stop("これはfooを含む"))).decision, "block");
   assert.equal(asStopDecision(run(stop("これはFOOを含む"))).decision, "block");
