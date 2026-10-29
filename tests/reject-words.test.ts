@@ -154,7 +154,7 @@ void test("どのスキーマにも合致しない入力は素通りする", () 
   assert.deepEqual(run({ foo: 1 }), {});
 });
 
-// 形式不正で止めても直せるのは利用者なので、何も決めずにsystemMessageに載せる。
+// 形式不正を理由にブロックしても直せるのは利用者なので、何も決めずにsystemMessageに載せる。
 // ブロックしないことと、どこが形式に合わないかが伝わることの両方を確かめる。
 const assertInvalidFormat = (decision: Decision) => {
   assert.equal(decision.hookSpecificOutput, undefined);

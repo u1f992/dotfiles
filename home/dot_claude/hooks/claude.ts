@@ -15,7 +15,7 @@ export type HookOutput = {
 };
 
 /**
- * top-levelの`decision`で止めるパターン。UserPromptSubmit, UserPromptExpansion,
+ * top-levelの`decision`でブロックするパターン。UserPromptSubmit, UserPromptExpansion,
  * PostToolUse, PostToolUseFailure, PostToolBatch, Stop, SubagentStop,
  * ConfigChange, PreCompactが共有する。`"block"`が唯一の値で`reason`が必須。
  * 許可する場合はJSONを出さずにexit 0とする。
