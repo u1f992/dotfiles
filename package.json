@@ -1,4 +1,5 @@
 {
+  "name": "dotfiles",
   "type": "module",
   "scripts": {
     "lint": "tsc && oxlint --fix home/dot_agents/hooks home/dot_claude home/dot_codex/hooks tests",
