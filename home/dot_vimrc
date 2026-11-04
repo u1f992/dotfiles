@@ -10,6 +10,9 @@ set shiftwidth=4
 set backspace=2
 set ambiwidth=double
 
+" Preserve the file's trailing newline state instead of adding one on write.
+set nofixendofline
+
 " Use clipboard for yank
 set clipboard=unnamedplus,unnamed,autoselect
 
