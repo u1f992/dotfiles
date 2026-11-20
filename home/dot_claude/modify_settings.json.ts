@@ -29,6 +29,7 @@ const settings: JsonObject = {
   },
   language: "japanese",
   autoMemoryEnabled: false,
+  idleCompaction: false,
 };
 
 const isObject = (value: Json): value is JsonObject =>
